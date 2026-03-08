@@ -1,0 +1,513 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
+
+/* =========================================
+   GENEL
+   ========================================= */
+body {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(-45deg, #0f766e, #14b8a6, #0ea5e9, #1e3a8a);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* =========================================
+   KART
+   ========================================= */
+.card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  padding: 30px;
+  width: 90%;
+  max-width: 580px;
+  text-align: center;
+}
+
+/* =========================================
+   TİPOGRAFİ
+   ========================================= */
+.title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  background: linear-gradient(to right, #0ea5e9, #14b8a6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 0.8rem;
+  color: #444;
+  margin-bottom: 10px;
+}
+
+/* =========================================
+   FORM
+   ========================================= */
+.input-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+input {
+  padding: 8px;
+  font-size: 0.85rem;
+  border-radius: 10px;
+  border: 2px solid #eee;
+}
+
+.input-group input::placeholder {
+  color: white;
+  opacity: 0.8;
+  font-size: 0.95rem;
+}
+
+/* =========================================
+   BUTONLAR
+   ========================================= */
+.btn {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.primary-btn {
+  background: linear-gradient(45deg, #0ea5e9, #14b8a6);
+  color: white;
+  padding: 10px;
+  font-size: 0.95rem;
+}
+
+.admin-btn {
+  background: none;
+  color: #0f766e;
+  font-size: 0.85rem;
+  padding: 8px;
+  border: 2px dashed #14b8a6;
+}
+
+.back-btn {
+  background: none;
+  color: black;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* =========================================
+   ANKET
+   ========================================= */
+.q-count {
+  font-size: 1rem;
+  color: #0f766e;
+}
+
+.q-text {
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+}
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.opt-btn {
+  padding: 14px;
+  font-size: 1rem;
+  border-radius: 12px;
+  border: 2px solid #ddd;
+  background: white;
+  cursor: pointer;
+}
+
+.progress-container {
+  width: 100%;
+  height: 10px;
+  background: #eee;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #14b8a6, #0ea5e9);
+  border-radius: 20px;
+}
+
+/* =========================================
+   SONUÇ
+   ========================================= */
+.res-title {
+  font-size: 2rem;
+  color: #0f766e;
+}
+
+.res-highlight {
+  font-size: 2.8rem;
+  font-weight: 900;
+  background: linear-gradient(to right, #14b8a6, #0ea5e9);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.res-detail-box {
+  background: #f1f5f9;
+  padding: 20px;
+  border-radius: 14px;
+  margin-top: 16px;
+}
+
+/* =========================================
+   ADMİN KARTI
+   ========================================= */
+.admin-input-group {
+  grid-template-columns: 1fr; /* Admin'de inputlar alt alta */
+}
+
+/* =========================================
+   LAMBALI GİRİŞ EKRANI
+   ========================================= */
+.lamp-page-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-left: 10vw;
+  transition: background-color 0.6s ease;
+  z-index: 100;
+}
+
+.lamp-page-wrapper.lamp-off { background-color: #121417; }
+.lamp-page-wrapper.lamp-on  { background-color: #1c1f24; }
+
+/* --- Lamba Gövdesi --- */
+.lamp-container {
+  position: absolute;
+  left: 15vw;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 101;
+}
+
+.lampshade {
+  width: 180px;
+  height: 80px;
+  background: #fdf5e6;
+  border-radius: 90px 90px 0 0;
+  position: relative;
+  z-index: 3;
+}
+
+.lamp-stand {
+  width: 16px;
+  height: 220px;
+  background: #fdf5e6;
+  z-index: 2;
+}
+
+.lamp-base {
+  width: 120px;
+  height: 14px;
+  background: #fdf5e6;
+  border-radius: 10px;
+  z-index: 2;
+}
+
+/* --- Işık Hüzmesi --- */
+.light-glow {
+  position: absolute;
+  top: 80px;
+  width: 450px;
+  height: 500px;
+  background: radial-gradient(circle at top, rgba(255, 250, 180, 0.25), transparent 70%);
+  clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.lamp-page-wrapper.lamp-on .light-glow { opacity: 1; }
+
+/* --- Çekme İpi --- */
+.pull-string-container {
+  position: absolute;
+  top: 70px;
+  right: 40px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 4;
+}
+
+.pull-string {
+  width: 3px;
+  height: 60px;
+  background: #888;
+  transition: height 0.15s ease-out;
+}
+
+.pull-knob {
+  width: 16px;
+  height: 16px;
+  background: #d4af37;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.pull-string-container:active .pull-string { height: 90px; }
+
+/* --- Form Görünürlüğü --- */
+.student-form-container {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(40px);
+  transition: all 0.6s ease;
+  z-index: 10;
+  width: 100%;
+  max-width: 600px;
+}
+
+.lamp-page-wrapper.lamp-on .student-form-container {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* --- Karanlık Tema --- */
+.dark-card {
+  background: rgba(35, 35, 40, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6) !important;
+  padding: 20px !important;
+}
+
+.dark-title {
+  background: none !important;
+  color: white !important;
+  -webkit-text-fill-color: white !important;
+}
+
+.dark-subtitle { color: #ccc !important; }
+
+.dark-card input {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+.dark-card input::placeholder { color: #aaa !important; }
+
+/* =========================================
+   ADMİN SAYFA SARMALAYICI
+   ========================================= */
+.admin-page-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1c1f24;
+}
+
+.admin-input-group {
+  grid-template-columns: 1fr;
+}
+
+
+
+/* =========================================
+   KULÜP LOGOSU
+   ========================================= */
+.club-logo {
+  width: 65px;
+  height: 65px;
+  object-fit: contain;
+  border-radius: 50%;
+  margin-bottom: 4px;
+  filter: drop-shadow(0 0 10px rgba(14, 165, 233, 0.4));
+}
+
+/* =========================================
+   ONAY KUTULARI
+   ========================================= */
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: #ccc;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  margin-top: 2px;
+  padding: 0;
+  border: none;
+  accent-color: #14b8a6;
+  cursor: pointer;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #14b8a6;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+/* =========================================
+   MODAL
+   ========================================= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-box {
+  background: #1e2228;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 480px;
+  width: 90%;
+  text-align: center;
+}
+
+.modal-title {
+  color: #14b8a6;
+  font-size: 1.1rem;
+  margin-bottom: 16px;
+}
+
+.modal-text {
+  color: #ccc;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.modal-scroll {
+  max-height: 350px;
+  overflow-y: auto;
+  text-align: left;
+  margin-bottom: 16px;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: #14b8a6 #2a2d35;
+}
+
+.modal-scroll::-webkit-scrollbar { width: 5px; }
+.modal-scroll::-webkit-scrollbar-track { background: #2a2d35; border-radius: 10px; }
+.modal-scroll::-webkit-scrollbar-thumb { background: #14b8a6; border-radius: 10px; }
+
+.modal-section-title {
+  color: #14b8a6;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 14px 0 4px;
+}
+
+.modal-list {
+  color: #ccc;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  padding-left: 18px;
+  margin: 4px 0;
+}
+
+/* =========================================
+   ROL BADGE
+   ========================================= */
+.role-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 10px 0 16px;
+}
+
+.developer-badge {
+  background: rgba(14, 165, 233, 0.15);
+  border: 1px solid #0ea5e9;
+  color: #0ea5e9;
+}
+
+.school-badge {
+  background: rgba(20, 184, 166, 0.15);
+  border: 1px solid #14b8a6;
+  color: #14b8a6;
+}
+
+/* =========================================
+   SONUÇ SİMGESİ
+   ========================================= */
+.res-icon {
+  font-size: 4rem;
+  margin: 10px 0 4px;
+  animation: popIn 0.5s ease;
+}
+
+@keyframes popIn {
+  0%   { transform: scale(0); opacity: 0; }
+  70%  { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.res-icon-img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  border-radius: 20px;
+  animation: popIn 0.5s ease;
+}
