@@ -180,7 +180,7 @@ input {
    ADMİN KARTI
    ========================================= */
 .admin-input-group {
-  grid-template-columns: 1fr; /* Admin'de inputlar alt alta */
+  grid-template-columns: 1fr;
 }
 
 /* =========================================
@@ -193,11 +193,13 @@ input {
   width: 100vw;
   height: 100vh;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding-left: 10vw;
+  padding: 0;
   transition: background-color 0.6s ease;
   z-index: 100;
+  overflow-y: auto;
 }
 
 .lamp-page-wrapper.lamp-off { background-color: #121417; }
@@ -205,14 +207,17 @@ input {
 
 /* --- Lamba Gövdesi --- */
 .lamp-container {
-  position: absolute;
-  left: 15vw;
-  top: 50%;
-  transform: translateY(-50%);
+  position: relative;
+  left: auto;
+  top: auto;
+  transform: scale(0.45);
+  transform-origin: center top;
   display: flex;
   flex-direction: column;
   align-items: center;
   z-index: 101;
+  margin-bottom: -80px;
+  flex-shrink: 0;
 }
 
 .lampshade {
@@ -291,8 +296,9 @@ input {
   transform: translateY(40px);
   transition: all 0.6s ease;
   z-index: 10;
-  width: 100%;
+  width: 90%;
   max-width: 600px;
+  flex-shrink: 0;
 }
 
 .lamp-page-wrapper.lamp-on .student-form-container {
@@ -339,12 +345,6 @@ input {
   align-items: center;
   background-color: #1c1f24;
 }
-
-.admin-input-group {
-  grid-template-columns: 1fr;
-}
-
-
 
 /* =========================================
    KULÜP LOGOSU
@@ -510,4 +510,42 @@ input {
   object-fit: contain;
   border-radius: 20px;
   animation: popIn 0.5s ease;
+}
+
+/* =========================================
+   MOBİL RESPONSIVE
+   ========================================= */
+@media (max-width: 600px) {
+  .lamp-container {
+    transform: scale(0.35);
+    margin-bottom: -100px;
+  }
+
+  .input-group {
+    grid-template-columns: 1fr;
+  }
+
+  .dark-card {
+    padding: 16px !important;
+  }
+
+  .title {
+    font-size: 1.1rem;
+  }
+
+  .subtitle {
+    font-size: 0.75rem;
+  }
+
+  .q-text {
+    font-size: 1.1rem;
+  }
+
+  .res-title {
+    font-size: 1.5rem;
+  }
+
+  .res-highlight {
+    font-size: 2rem;
+  }
 }
