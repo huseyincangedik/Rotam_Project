@@ -193,10 +193,8 @@ input {
   width: 100vw;
   height: 100vh;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 0;
   transition: background-color 0.6s ease;
   z-index: 100;
   overflow-y: auto;
@@ -205,19 +203,22 @@ input {
 .lamp-page-wrapper.lamp-off { background-color: #121417; }
 .lamp-page-wrapper.lamp-on  { background-color: #1c1f24; }
 
-/* --- Lamba Gövdesi --- */
+/* --- Lamba: fixed, üstte ortada, forma dokunmuyor --- */
 .lamp-container {
-  position: relative;
-  left: auto;
-  top: auto;
-  transform: scale(0.45);
+  position: fixed;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.38);
   transform-origin: center top;
   display: flex;
   flex-direction: column;
   align-items: center;
   z-index: 101;
-  margin-bottom: -80px;
-  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.pull-string-container {
+  pointer-events: all;
 }
 
 .lampshade {
@@ -289,16 +290,17 @@ input {
 
 .pull-string-container:active .pull-string { height: 90px; }
 
-/* --- Form Görünürlüğü --- */
+/* --- Form: lamba fixed olduğu için bağımsız ortalanır --- */
 .student-form-container {
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(40px);
-  transition: all 0.6s ease;
+  position: relative;
   z-index: 10;
   width: 90%;
-  max-width: 600px;
-  flex-shrink: 0;
+  max-width: 520px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(30px);
+  transition: all 0.6s ease;
+  margin-top: 80px;
 }
 
 .lamp-page-wrapper.lamp-on .student-form-container {
@@ -343,7 +345,16 @@ input {
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow-y: auto;
   background-color: #1c1f24;
+  padding: 20px 0;
+  box-sizing: border-box;
+}
+
+.admin-card {
+  width: 90%;
+  max-width: 420px;
+  margin: auto;
 }
 
 /* =========================================
@@ -411,33 +422,38 @@ input {
   justify-content: center;
   align-items: center;
   z-index: 999;
+  padding: 16px;
+  box-sizing: border-box;
 }
 
 .modal-box {
   background: #1e2228;
   border: 1px solid rgba(255,255,255,0.15);
   border-radius: 16px;
-  padding: 30px;
+  padding: 24px;
   max-width: 480px;
-  width: 90%;
+  width: 100%;
   text-align: center;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
 .modal-title {
   color: #14b8a6;
-  font-size: 1.1rem;
+  font-size: 1rem;
   margin-bottom: 16px;
 }
 
 .modal-text {
   color: #ccc;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   line-height: 1.6;
   margin-bottom: 20px;
 }
 
 .modal-scroll {
-  max-height: 350px;
+  max-height: 300px;
   overflow-y: auto;
   text-align: left;
   margin-bottom: 16px;
@@ -515,10 +531,15 @@ input {
 /* =========================================
    MOBİL RESPONSIVE
    ========================================= */
-@media (max-width: 600px) {
+@media (max-width: 480px) {
   .lamp-container {
-    transform: scale(0.35);
-    margin-bottom: -100px;
+    transform: translateX(-50%) scale(0.28);
+    top: -40px;
+  }
+
+  .student-form-container {
+    margin-top: 55px;
+    width: 95%;
   }
 
   .input-group {
@@ -526,26 +547,45 @@ input {
   }
 
   .dark-card {
-    padding: 16px !important;
+    padding: 14px !important;
   }
 
   .title {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
   .subtitle {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
   }
 
   .q-text {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
   .res-title {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
   }
 
   .res-highlight {
-    font-size: 2rem;
+    font-size: 1.8rem;
+  }
+
+  .modal-box {
+    padding: 16px;
+  }
+
+  .modal-scroll {
+    max-height: 220px;
+  }
+}
+
+@media (max-width: 380px) {
+  .lamp-container {
+    transform: translateX(-50%) scale(0.22);
+    top: -50px;
+  }
+
+  .student-form-container {
+    margin-top: 40px;
   }
 }
