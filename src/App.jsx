@@ -221,12 +221,14 @@ function Survey() {
             </div>
           )}
 
-          {step === 3 && result && (() => {
+{step === 3 && result && (() => {
             const alan = result.primaryArea ?? result.result ?? result;
+            const alanStr = String(alan || "").toLowerCase();
 
             const simgelerMap = {
               "backend": imgBackend,
-              "fronted": imgFrontend,
+              "frontend": imgFrontend,
+              "fronted": imgFrontend, // Eski ihtimale karşı bıraktık
               "mobil": imgMobil,
               "mobile": imgMobil,
               "siber": imgSiber,
@@ -236,14 +238,26 @@ function Survey() {
               "yapay zeka": imgAI,
             };
 
-            const simge = simgelerMap[alan?.toLowerCase()];
+            // Gelen metnin içinde eşleşen tüm alanların simgelerini bul
+            const eslesenSimgeler = [];
+            Object.keys(simgelerMap).forEach(key => {
+              if (alanStr.includes(key)) {
+                // Aynı resmi (örneğin cyber ve siber geçerse) iki kez eklememek için kontrol
+                if (!eslesenSimgeler.includes(simgelerMap[key])) {
+                  eslesenSimgeler.push(simgelerMap[key]);
+                }
+              }
+            });
 
             return (
               <div>
                 <h1 className="res-title">ANALİZ TAMAMLANDI</h1>
-                <div className="res-icon">
-                  {simge
-                    ? <img src={simge} alt={alan} className="res-icon-img" />
+                {/* Simgeleri yan yana göstermek için flex yapısı eklendi */}
+                <div className="res-icon" style={{ display: "flex", justifyContent: "center", gap: "20px", flexWrap: "wrap", margin: "10px 0" }}>
+                  {eslesenSimgeler.length > 0
+                    ? eslesenSimgeler.map((simge, index) => (
+                        <img key={index} src={simge} alt="Alan Simgesi" className="res-icon-img" style={{ width: "90px", height: "90px" }} />
+                      ))
                     : "💡"
                   }
                 </div>
