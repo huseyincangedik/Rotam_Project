@@ -113,43 +113,33 @@ input {
 /* =========================================
    ANKET
    ========================================= */
-.q-count {
-  font-size: 1rem;
-  color: #0f766e;
+/* =========================================
+   KARANLIK TEMA - ANKET DÜZELTMELERİ
+   ========================================= */
+
+/* Soru metnini beyaz ve okunabilir yap */
+.dark-card .q-text {
+  color: #ffffff !important;
 }
 
-.q-text {
-  font-size: 1.4rem;
-  margin-bottom: 20px;
+/* Soru sayacını ana renklerinden biriyle (turkuaz) uyumlu yap */
+.dark-card .q-count {
+  color: #14b8a6 !important;
 }
 
-.options-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+/* Şık, yarı saydam ve karanlık temaya uygun anket butonları */
+.dark-card .opt-btn {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  transition: all 0.3s ease;
 }
 
-.opt-btn {
-  padding: 14px;
-  font-size: 1rem;
-  border-radius: 12px;
-  border: 2px solid #ddd;
-  background: white;
-  cursor: pointer;
-}
-
-.progress-container {
-  width: 100%;
-  height: 10px;
-  background: #eee;
-  border-radius: 20px;
-  margin-bottom: 20px;
-}
-
-.progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, #14b8a6, #0ea5e9);
-  border-radius: 20px;
+/* Kullanıcı butonun üzerine geldiğinde tatlı bir parlama efekti */
+.dark-card .opt-btn:hover {
+  background: rgba(20, 184, 166, 0.25) !important;
+  border-color: #14b8a6 !important;
+  box-shadow: 0 0 10px rgba(20, 184, 166, 0.3);
 }
 
 /* =========================================
