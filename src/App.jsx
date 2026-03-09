@@ -222,6 +222,7 @@ function Survey() {
             </div>
           )}
 
+
 {step === 3 && result && (() => {
   const alan = result.primaryArea ?? result.result ?? result;
   
