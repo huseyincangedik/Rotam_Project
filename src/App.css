@@ -1,683 +1,204 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
-
 /* =========================================
-   GENEL
+   ADMİN TAB NAVİGASYON
    ========================================= */
-body {
-  margin: 0;
-  font-family: 'Montserrat', sans-serif;
-  min-height: 100vh;
+.admin-tabs {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(-45deg, #0f766e, #14b8a6, #0ea5e9, #1e3a8a);
-  background-size: 400% 400%;
-  animation: gradientBG 15s ease infinite;
+  gap: 0;
+  margin-top: 16px;
 }
 
-@keyframes gradientBG {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* =========================================
-   KART
-   ========================================= */
-.card {
-  background: rgba(28, 31, 36, 0.88);
-  backdrop-filter: blur(18px);
+.admin-tab-btn {
+  flex: 1;
+  padding: 10px 16px;
+  background: rgba(28, 31, 36, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.55);
-  border-radius: 20px;
-  padding: 30px;
-  width: 90%;
-  max-width: 580px;
-  text-align: center;
-  color: #e2e8f0;
-}
-
-/* Kart içindeki tüm düz metinler okunabilir olsun */
-.card p,
-.card span,
-.card label,
-.card div {
-  color: #e2e8f0;
-}
-
-/* =========================================
-   TİPOGRAFİ
-   ========================================= */
-.title {
-  font-size: 1.4rem;
-  font-weight: 900;
-  background: linear-gradient(to right, #0ea5e9, #14b8a6);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.subtitle {
-  font-size: 0.8rem;
+  border-bottom: none;
   color: #94a3b8;
-  margin-bottom: 10px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 0;
+}
+
+.admin-tab-btn:first-child {
+  border-radius: 10px 0 0 0;
+}
+
+.admin-tab-btn:last-child {
+  border-radius: 0 10px 0 0;
+}
+
+.admin-tab-btn.active {
+  background: rgba(28, 31, 36, 0.92);
+  color: #14b8a6;
+  border-color: rgba(20, 184, 166, 0.4);
+  border-bottom: 1px solid rgba(28, 31, 36, 0.92);
+  margin-bottom: -1px;
+  z-index: 1;
+}
+
+.admin-tab-btn:hover:not(.active) {
+  background: rgba(20, 184, 166, 0.08);
+  color: #e2e8f0;
 }
 
 /* =========================================
-   FORM
+   İSTATİSTİK KARTLARI
    ========================================= */
-.input-group {
+.stats-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
-input {
-  padding: 8px;
-  font-size: 0.85rem;
+.stat-card {
+  background: rgba(20, 184, 166, 0.08);
+  border: 1px solid rgba(20, 184, 166, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #14b8a6;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-top: 6px;
+  font-weight: 700;
+}
+
+/* =========================================
+   TABLO
+   ========================================= */
+.admin-table-wrapper {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.admin-table th {
+  background: rgba(20, 184, 166, 0.1);
+  color: #14b8a6;
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 10px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+}
+
+.admin-table tr:hover td {
+  background: rgba(20, 184, 166, 0.04);
+}
+
+/* =========================================
+   ALAN BADGE
+   ========================================= */
+.area-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* =========================================
+   SELECT
+   ========================================= */
+.admin-select {
+  padding: 8px 10px;
+  font-size: 0.82rem;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(0, 0, 0, 0.3);
   color: #f1f5f9;
-}
-
-.input-group input::placeholder {
-  color: white;
-  opacity: 0.8;
-  font-size: 0.95rem;
-}
-
-/* =========================================
-   BUTONLAR
-   ========================================= */
-.btn {
-  width: 100%;
-  border: none;
-  border-radius: 12px;
-  font-weight: 900;
-  cursor: pointer;
-  margin-top: 8px;
-}
-
-.primary-btn {
-  background: linear-gradient(45deg, #0ea5e9, #14b8a6);
-  color: white;
-  padding: 10px;
-  font-size: 0.95rem;
-}
-
-.admin-btn {
-  background: none;
-  color: #14b8a6;
-  font-size: 0.85rem;
-  padding: 8px;
-  border: 2px dashed #14b8a6;
-}
-
-.back-btn {
-  background: none;
-  color: #a0aec0;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  border: none;
-}
-
-/* =========================================
-   ANKET SARMALAYICI
-   ========================================= */
-.survey-container {
-  width: 100%;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* =========================================
-   ANKET & SONUÇ KARTI — DARK TEMA
-   ========================================= */
-
-/* step 2 ve 3'te kullanılan .card'ı tamamen karanlık yap */
-.survey-container > .card {
-  background: rgba(28, 31, 36, 0.92) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6) !important;
-  backdrop-filter: blur(18px);
-  color: #e2e8f0 !important;
-}
-
-/* Kart içindeki tüm metin elementleri */
-.survey-container > .card h1,
-.survey-container > .card h2,
-.survey-container > .card h3,
-.survey-container > .card p,
-.survey-container > .card span,
-.survey-container > .card div,
-.survey-container > .card strong {
-  color: #e2e8f0 !important;
-  -webkit-text-fill-color: #e2e8f0 !important;
-}
-
-/* Soru sayacı */
-.q-count {
-  font-size: 1rem;
-  color: #14b8a6 !important;
-  -webkit-text-fill-color: #14b8a6 !important;
-  font-weight: 700;
-}
-
-/* Soru metni */
-.q-text {
-  font-size: 1.4rem;
-  margin-bottom: 20px;
-  color: #f1f5f9 !important;
-  -webkit-text-fill-color: #f1f5f9 !important;
-  line-height: 1.4;
-}
-
-/* Seçenek listesi */
-.options-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* Seçenek butonları */
-.opt-btn {
-  padding: 14px;
-  font-size: 1rem;
-  border-radius: 12px;
-  border: 1px solid rgba(20, 184, 166, 0.4) !important;
-  background: rgba(20, 184, 166, 0.08) !important;
-  color: #e2e8f0 !important;
-  -webkit-text-fill-color: #e2e8f0 !important;
-  cursor: pointer;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
-  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
-}
-
-.opt-btn:hover {
-  background: rgba(20, 184, 166, 0.25) !important;
-  border-color: #14b8a6 !important;
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-  transform: translateY(-2px);
-}
-
-.opt-btn:active {
-  transform: translateY(0);
-  background: rgba(14, 165, 233, 0.3) !important;
-}
-
-/* İlerleme çubuğu */
-.progress-container {
-  width: 100%;
-  height: 10px;
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 20px;
-  margin-bottom: 20px;
-}
-
-.progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, #14b8a6, #0ea5e9);
-  border-radius: 20px;
-  transition: width 0.4s ease;
-}
-
-/* =========================================
-   SONUÇ — DARK TEMA
-   ========================================= */
-.result-card {
-  background: rgba(35, 35, 40, 0.85) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6) !important;
-  backdrop-filter: blur(15px);
-}
-
-.res-title {
-  font-size: 2rem;
-  color: #14b8a6 !important;
-  -webkit-text-fill-color: #14b8a6 !important;
-}
-
-.res-highlight {
-  font-size: 2.8rem;
-  font-weight: 900;
-  background: linear-gradient(to right, #14b8a6, #0ea5e9);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent !important;
-}
-
-.res-detail-box {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(20, 184, 166, 0.25);
-  padding: 20px;
-  border-radius: 14px;
-  margin-top: 16px;
-}
-
-.res-detail-box p,
-.res-detail-box strong,
-.res-detail-box span {
-  color: #cbd5e1 !important;
-  -webkit-text-fill-color: #cbd5e1 !important;
-}
-
-/* =========================================
-   ADMİN KARTI
-   ========================================= */
-.admin-input-group {
-  grid-template-columns: 1fr;
-}
-
-/* =========================================
-   LAMBALI GİRİŞ EKRANI
-   ========================================= */
-.lamp-page-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: background-color 0.6s ease;
-  z-index: 100;
-  overflow-y: auto;
-}
-
-.lamp-page-wrapper.lamp-off { background-color: #121417; }
-.lamp-page-wrapper.lamp-on  { background-color: #1c1f24; }
-
-/* --- Lamba: fixed, üstte ortada --- */
-.lamp-container {
-  position: fixed;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%) scale(0.65);
-  transform-origin: center top;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 101;
-  pointer-events: none;
-}
-
-.pull-string-container {
-  pointer-events: all;
-}
-
-.lampshade {
-  width: 180px;
-  height: 80px;
-  background: #fdf5e6;
-  border-radius: 90px 90px 0 0;
-  position: relative;
-  z-index: 3;
-}
-
-.lamp-stand {
-  width: 16px;
-  height: 220px;
-  background: #fdf5e6;
-  z-index: 2;
-}
-
-.lamp-base {
-  width: 120px;
-  height: 14px;
-  background: #fdf5e6;
-  border-radius: 10px;
-  z-index: 2;
-}
-
-/* --- Işık Hüzmesi --- */
-.light-glow {
-  position: absolute;
-  top: 80px;
-  width: 450px;
-  height: 500px;
-  background: radial-gradient(circle at top, rgba(255, 250, 180, 0.25), transparent 70%);
-  clip-path: polygon(30% 0, 70% 0, 100% 100%, 0 100%);
-  opacity: 0;
-  transition: opacity 0.6s ease;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.lamp-page-wrapper.lamp-on .light-glow { opacity: 1; }
-
-/* --- Çekme İpi --- */
-.pull-string-container {
-  position: absolute;
-  top: 70px;
-  right: 40px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 4;
-}
-
-.pull-string {
-  width: 3px;
-  height: 60px;
-  background: #888;
-  transition: height 0.15s ease-out;
-}
-
-.pull-knob {
-  width: 16px;
-  height: 16px;
-  background: #d4af37;
-  border-radius: 50%;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-}
-
-.pull-string-container:active .pull-string { height: 90px; }
-
-/* --- Form: lamba fixed olduğu için bağımsız ortalanır --- */
-.student-form-container {
-  position: relative;
-  z-index: 10;
-  width: 90%;
-  max-width: 520px;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(30px);
-  transition: all 0.6s ease;
-  margin-top: 160px;
-}
-
-.lamp-page-wrapper.lamp-on .student-form-container {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-/* --- Karanlık Tema --- */
-.dark-card {
-  background: rgba(35, 35, 40, 0.8) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6) !important;
-  padding: 20px !important;
-}
-
-.dark-title {
-  background: none !important;
-  color: white !important;
-  -webkit-text-fill-color: white !important;
-}
-
-.dark-subtitle { color: #ccc !important; }
-
-.dark-card input {
-  background: rgba(0, 0, 0, 0.3) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  color: white !important;
-}
-
-.dark-card input::placeholder { color: #aaa !important; }
-
-/* =========================================
-   ADMİN SAYFA SARMALAYICI
-   ========================================= */
-.admin-page-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow-y: auto;
-  background-color: #1c1f24;
-  padding: 20px 0;
-  box-sizing: border-box;
-}
-
-.admin-card {
-  width: 90%;
-  max-width: 420px;
-  margin: auto;
-}
-
-/* =========================================
-   KULÜP LOGOSU
-   ========================================= */
-.club-logo {
-  width: 65px;
-  height: 65px;
-  object-fit: contain;
-  border-radius: 50%;
-  margin-bottom: 4px;
-  filter: drop-shadow(0 0 10px rgba(14, 165, 233, 0.4));
-}
-
-/* =========================================
-   ONAY KUTULARI
-   ========================================= */
-.checkbox-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 8px;
-  text-align: left;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  color: #ccc;
-  font-size: 0.75rem;
+  font-weight: 600;
   cursor: pointer;
 }
 
-.checkbox-label input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  min-width: 16px;
-  margin-top: 2px;
-  padding: 0;
-  border: none;
-  accent-color: #14b8a6;
-  cursor: pointer;
-}
-
-.link-btn {
-  background: none;
-  border: none;
-  color: #14b8a6;
-  font-size: 0.75rem;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-}
-
 /* =========================================
-   MODAL
+   SORU KARTI
    ========================================= */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-  padding: 16px;
-  box-sizing: border-box;
+.question-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px 16px;
+  transition: border-color 0.2s ease;
 }
 
-.modal-box {
-  background: #1e2228;
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 16px;
-  padding: 24px;
-  max-width: 480px;
-  width: 100%;
-  text-align: center;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-sizing: border-box;
+.question-card:hover {
+  border-color: rgba(20, 184, 166, 0.3);
 }
 
-.modal-title {
-  color: #14b8a6;
-  font-size: 1rem;
-  margin-bottom: 16px;
-}
-
-.modal-text {
-  color: #ccc;
-  font-size: 0.85rem;
-  line-height: 1.6;
-  margin-bottom: 20px;
-}
-
-.modal-scroll {
-  max-height: 300px;
-  overflow-y: auto;
-  text-align: left;
-  margin-bottom: 16px;
-  padding-right: 6px;
-  scrollbar-width: thin;
-  scrollbar-color: #14b8a6 #2a2d35;
-}
-
-.modal-scroll::-webkit-scrollbar { width: 5px; }
-.modal-scroll::-webkit-scrollbar-track { background: #2a2d35; border-radius: 10px; }
-.modal-scroll::-webkit-scrollbar-thumb { background: #14b8a6; border-radius: 10px; }
-
-.modal-section-title {
-  color: #14b8a6;
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin: 14px 0 4px;
-}
-
-.modal-list {
-  color: #ccc;
-  font-size: 0.82rem;
-  line-height: 1.6;
-  padding-left: 18px;
-  margin: 4px 0;
-}
-
-/* =========================================
-   ROL BADGE
-   ========================================= */
-.role-badge {
+.option-chip {
   display: inline-block;
-  padding: 6px 16px;
+  padding: 3px 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin: 10px 0 16px;
+  font-size: 0.72rem;
+  color: #cbd5e1;
 }
 
-.developer-badge {
+/* =========================================
+   İKON BUTONLAR
+   ========================================= */
+.icon-btn {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s ease;
+}
+
+.edit-btn {
   background: rgba(14, 165, 233, 0.15);
-  border: 1px solid #0ea5e9;
-  color: #0ea5e9;
 }
 
-.school-badge {
-  background: rgba(20, 184, 166, 0.15);
-  border: 1px solid #14b8a6;
-  color: #14b8a6;
+.edit-btn:hover {
+  background: rgba(14, 165, 233, 0.3);
 }
 
-/* =========================================
-   SONUÇ SİMGESİ
-   ========================================= */
-.res-icon {
-  font-size: 4rem;
-  margin: 10px 0 4px;
-  animation: popIn 0.5s ease;
+.delete-btn {
+  background: rgba(239, 68, 68, 0.15);
 }
 
-@keyframes popIn {
-  0%   { transform: scale(0); opacity: 0; }
-  70%  { transform: scale(1.2); }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.res-icon-img {
-  width: 120px;
-  height: 120px;
-  object-fit: contain;
-  border-radius: 20px;
-  animation: popIn 0.5s ease;
+.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
 }
 
 /* =========================================
-   MOBİL RESPONSIVE
+   MOBİL RESPONSIVE — ADMİN
    ========================================= */
-@media (max-width: 480px) {
-  .lamp-container {
-    transform: translateX(-50%) scale(0.52);
-    top: 5px;
-  }
-
-  .student-form-container {
-    margin-top: 140px;
-    width: 95%;
-  }
-
-  .input-group {
+@media (max-width: 600px) {
+  .stats-grid {
     grid-template-columns: 1fr;
   }
 
-  .dark-card {
-    padding: 14px !important;
-  }
-
-  .title {
-    font-size: 1rem;
-  }
-
-  .subtitle {
-    font-size: 0.7rem;
-  }
-
-  .q-text {
-    font-size: 1rem;
-  }
-
-  .res-title {
-    font-size: 1.4rem;
-  }
-
-  .res-highlight {
-    font-size: 1.8rem;
-  }
-
-  .modal-box {
-    padding: 16px;
-  }
-
-  .modal-scroll {
-    max-height: 220px;
-  }
-}
-
-@media (max-width: 380px) {
-  .lamp-container {
-    transform: translateX(-50%) scale(0.42);
-    top: 5px;
-  }
-
-  .student-form-container {
-    margin-top: 120px;
+  .admin-tab-btn {
+    font-size: 0.72rem;
+    padding: 8px 6px;
   }
 }
