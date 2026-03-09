@@ -104,44 +104,85 @@ input {
 
 .back-btn {
   background: none;
-  color: black;
+  color: #a0aec0;
   font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
+  border: none;
 }
 
 /* =========================================
-   ANKET
+   ANKET — DARK TEMA (giriş ekranıyla uyumlu)
    ========================================= */
-.q-count {
-  font-size: 1rem;
-  color: #0f766e;
+
+/* Anket sayfasının arka planı karanlık temalı kart */
+.survey-card {
+  background: rgba(35, 35, 40, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(15px);
 }
 
+/* Soru sayacı */
+.q-count {
+  font-size: 1rem;
+  color: #14b8a6;
+  font-weight: 700;
+}
+
+/* Soru metni */
 .q-text {
   font-size: 1.4rem;
   margin-bottom: 20px;
+  color: #f0f4f8;
+  line-height: 1.4;
 }
 
+/* Seçenek listesi */
 .options-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
+/* Seçenek butonları */
 .opt-btn {
   padding: 14px;
   font-size: 1rem;
   border-radius: 12px;
-  border: 2px solid #ddd;
-  background: white;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
   cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
 }
 
+.opt-btn:hover {
+  background: rgba(20, 184, 166, 0.2);
+  border-color: #14b8a6;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.opt-btn:active {
+  transform: translateY(0);
+  background: rgba(14, 165, 233, 0.25);
+}
+
+/* Seçili seçenek */
+.opt-btn.selected {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.3), rgba(20, 184, 166, 0.3));
+  border-color: #0ea5e9;
+  color: #ffffff;
+}
+
+/* İlerleme çubuğu */
 .progress-container {
   width: 100%;
   height: 10px;
-  background: #eee;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 20px;
   margin-bottom: 20px;
 }
@@ -150,14 +191,22 @@ input {
   height: 100%;
   background: linear-gradient(90deg, #14b8a6, #0ea5e9);
   border-radius: 20px;
+  transition: width 0.4s ease;
 }
 
 /* =========================================
-   SONUÇ
+   SONUÇ — DARK TEMA
    ========================================= */
+.result-card {
+  background: rgba(35, 35, 40, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(15px);
+}
+
 .res-title {
   font-size: 2rem;
-  color: #0f766e;
+  color: #14b8a6;
 }
 
 .res-highlight {
@@ -170,7 +219,9 @@ input {
 }
 
 .res-detail-box {
-  background: #f1f5f9;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
   padding: 20px;
   border-radius: 14px;
   margin-top: 16px;
@@ -588,71 +639,4 @@ input {
   .student-form-container {
     margin-top: 120px;
   }
-}
-
-
-
-/* =========================================
-   ANKET DARK TEMA
-   ========================================= */
-
-.q-text {
-  font-size: 1.4rem;
-  margin-bottom: 20px;
-  color: #ffffff;
-}
-
-.q-count {
-  font-size: 1rem;
-  color: #14b8a6;
-}
-
-/* seçenek butonları */
-
-.opt-btn {
-  padding: 14px;
-  font-size: 1rem;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.2);
-  background: rgba(0,0,0,0.35);
-  color: white;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-/* hover efekti */
-
-.opt-btn:hover {
-  background: linear-gradient(45deg, #0ea5e9, #14b8a6);
-  border-color: transparent;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(20,184,166,0.3);
-}
-
-/* progress bar arka plan */
-
-.progress-container {
-  width: 100%;
-  height: 10px;
-  background: rgba(255,255,255,0.1);
-  border-radius: 20px;
-  margin-bottom: 20px;
-}
-
-/* progress dolan kısım */
-
-.progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, #14b8a6, #0ea5e9);
-  border-radius: 20px;
-}
-
-/* anket kartı */
-
-.card {
-  background: rgba(35, 35, 40, 0.85);
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-  color: white;
 }
