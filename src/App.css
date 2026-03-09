@@ -412,7 +412,7 @@ input {
 .dark-card input::placeholder { color: #aaa !important; }
 
 /* =========================================
-   ADMİN SAYFA SARMALAYICI
+   ADMİN SAYFA SARMALAYICI (DÜZELTİLDİ)
    ========================================= */
 .admin-page-wrapper {
   position: fixed;
@@ -420,19 +420,16 @@ input {
   left: 0;
   width: 100vw;
   height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   overflow-y: auto;
+  overflow-x: hidden;
   background-color: #1c1f24;
-  padding: 20px 0;
   box-sizing: border-box;
 }
 
 .admin-card {
   width: 90%;
   max-width: 420px;
-  margin: auto;
+  margin: 10vh auto 40px auto;
 }
 
 /* =========================================
@@ -607,11 +604,11 @@ input {
 }
 
 /* =========================================
-   SÜPER ADMİN PANEL
+   SÜPER ADMİN PANEL (DÜZELTİLDİ)
    ========================================= */
 .super-admin-wrapper {
   display: flex;
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
 }
 
@@ -688,12 +685,14 @@ input {
 
 .sa-content {
   margin-left: 220px;
+  width: calc(100% - 220px);
   flex: 1;
   padding: 40px 36px;
   min-height: 100vh;
   box-sizing: border-box;
   color: #e2e8f0;
   background-color: #13151a;
+  overflow-x: hidden;
 }
 
 .sa-section {
@@ -857,6 +856,7 @@ input {
 
 /* Tablo */
 .sa-table-wrap {
+  width: 100%;
   overflow-x: auto;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.07);
@@ -864,6 +864,7 @@ input {
 
 .sa-table {
   width: 100%;
+  min-width: 600px;
   border-collapse: collapse;
   font-size: 0.83rem;
 }
@@ -908,7 +909,7 @@ input {
   margin-top: 16px;
 }
 
-/* İstatistik kartları */
+/* İstatistik kartları (DÜZELTİLDİ) */
 .sa-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -921,12 +922,17 @@ input {
   border-radius: 14px;
   padding: 22px 16px;
   text-align: center;
+  overflow: hidden;
 }
 
 .sa-stat-val {
-  font-size: 1.9rem;
+  font-size: 1.4rem;
   font-weight: 900;
   color: #14b8a6;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  word-break: break-all;
+  line-height: 1.3;
 }
 
 .sa-stat-key {
@@ -938,7 +944,7 @@ input {
   letter-spacing: 0.06em;
 }
 
-/* Sorular */
+/* Sorular (DÜZELTİLDİ) */
 .sa-q-list {
   display: flex;
   flex-direction: column;
@@ -951,6 +957,7 @@ input {
   border-radius: 14px;
   padding: 14px 16px;
   transition: border-color 0.2s;
+  overflow: hidden;
 }
 
 .sa-q-card:hover {
@@ -984,6 +991,7 @@ input {
   font-size: 0.88rem;
   font-weight: 700;
   line-height: 1.4;
+  word-break: break-word;
 }
 
 .sa-q-actions {
@@ -1078,9 +1086,9 @@ input {
 }
 
 /* =========================================
-   MOBİL RESPONSIVE
+   MOBİL RESPONSIVE (DÜZELTİLDİ)
    ========================================= */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .super-admin-wrapper {
     flex-direction: column;
   }
@@ -1120,11 +1128,32 @@ input {
 
   .sa-content {
     margin-left: 0;
+    width: 100%;
     padding: 20px 16px;
   }
 
   .sa-section-title {
     font-size: 1.1rem;
+  }
+
+  /* Sorular mobil görünüm */
+  .sa-q-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sa-q-actions {
+    margin-top: 10px;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  /* Filtre satırı mobil */
+  .sa-filter-row {
+    flex-direction: column;
+  }
+  .sa-search, .sa-select {
+    width: 100%;
   }
 }
 
