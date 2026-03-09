@@ -348,7 +348,6 @@ const loadStudents = async () => {
     setStudentsLoading(true);
     try {
       const res = await axios.get(`${API}/api/admin/students`, authHeader);
-      console.log("GELEN ÖĞRENCİ VERİSİ:", res.data); // BURAYI EKLE
       setStudents(res.data);
     } catch { alert("Öğrenciler yüklenemedi!"); }
     finally { setStudentsLoading(false); }
@@ -595,8 +594,7 @@ const loadStudents = async () => {
                           </tr>
                         ) : filteredStudents.map((s, i) => {
                           // Backend farklı field adları döndürebilir — hepsini dene
-                          const resultVal =
-                            s.result ?? s.primaryArea ?? s.resultArea ?? s.area ?? s.category ?? "—";
+                          const resultVal = s.resultRole ?? s.result ?? s.primaryArea ?? "—";
                           return (
                             <tr key={s.id ?? i}>
                               <td>{i + 1}</td>
