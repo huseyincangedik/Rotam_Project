@@ -222,29 +222,41 @@ function Survey() {
             </div>
           )}
 
-         {step === 3 && result && (() => {
-            const alan = result.primaryArea ?? result;
-            const simgeler = {
-              "Backend":  imgBackend,
-              "Frontend": imgFrontend,
-              "Mobil":    imgMobil,
-              "Siber":    imgSiber,
-              "AI":       imgAI
-            };
-            const simge = simgeler[alan] ?? "💡";
-            return (
-              <div>
-                <h1 className="res-title">ANALİZ TAMAMLANDI</h1>
-                <div className="res-icon">{simge}</div>
-                <div className="res-highlight">{alan}</div>
-                <div className="res-detail-box">
-                  {result.detailedMessage && <p>{result.detailedMessage}</p>}
-                  {result.suggestedFrameworks && <p><strong>Teknolojiler:</strong> {result.suggestedFrameworks}</p>}
-                </div>
-                <button className="btn primary-btn" onClick={() => window.location.reload()}>YENİDEN BAŞLAT</button>
-              </div>
-            );
-          })()}
+{step === 3 && result && (() => {
+  const alan = result.primaryArea ?? result.result ?? result;
+  
+  const simgelerMap = {
+    "backend": imgBackend,
+    "frontend": imgFrontend,
+    "mobil": imgMobil,
+    "mobile": imgMobil,
+    "siber": imgSiber,
+    "cyber": imgSiber,
+    "cybersecurity": imgSiber,
+    "ai": imgAI,
+    "yapay zeka": imgAI,
+  };
+
+  const simge = simgelerMap[alan?.toLowerCase()];
+
+  return (
+    <div>
+      <h1 className="res-title">ANALİZ TAMAMLANDI</h1>
+      <div className="res-icon">
+        {simge
+          ? <img src={simge} alt={alan} className="res-icon-img" />
+          : "💡"
+        }
+      </div>
+      <div className="res-highlight">{alan}</div>
+      <div className="res-detail-box">
+        {result.detailedMessage && <p>{result.detailedMessage}</p>}
+        {result.suggestedFrameworks && <p><strong>Teknolojiler:</strong> {result.suggestedFrameworks}</p>}
+      </div>
+      <button className="btn primary-btn" onClick={() => window.location.reload()}>YENİDEN BAŞLAT</button>
+    </div>
+  );
+})()}
         </div>
       )}
     </div>
