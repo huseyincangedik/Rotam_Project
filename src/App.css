@@ -203,12 +203,12 @@ input {
 .lamp-page-wrapper.lamp-off { background-color: #121417; }
 .lamp-page-wrapper.lamp-on  { background-color: #1c1f24; }
 
-/* --- Lamba --- */
+/* --- Lamba: fixed, üstte ortada --- */
 .lamp-container {
   position: fixed;
-  top: 0px;
+  top: 10px;
   left: 50%;
-  transform: translateX(-50%) scale(0.5);
+  transform: translateX(-50%) scale(0.65);
   transform-origin: center top;
   display: flex;
   flex-direction: column;
@@ -290,7 +290,7 @@ input {
 
 .pull-string-container:active .pull-string { height: 90px; }
 
-/* --- Form --- */
+/* --- Form: lamba fixed olduğu için bağımsız ortalanır --- */
 .student-form-container {
   position: relative;
   z-index: 10;
@@ -300,7 +300,7 @@ input {
   visibility: hidden;
   transform: translateY(30px);
   transition: all 0.6s ease;
-  margin-top: 100px;
+  margin-top: 160px;
 }
 
 .lamp-page-wrapper.lamp-on .student-form-container {
@@ -533,12 +533,12 @@ input {
    ========================================= */
 @media (max-width: 480px) {
   .lamp-container {
-    transform: translateX(-50%) scale(0.4);
-    top: 0px;
+    transform: translateX(-50%) scale(0.52);
+    top: 5px;
   }
 
   .student-form-container {
-    margin-top: 90px;
+    margin-top: 140px;
     width: 95%;
   }
 
@@ -581,11 +581,11 @@ input {
 
 @media (max-width: 380px) {
   .lamp-container {
-    transform: translateX(-50%) scale(0.32);
-    top: 0px;
+    transform: translateX(-50%) scale(0.42);
+    top: 5px;
   }
 
   .student-form-container {
-    margin-top: 75px;
+    margin-top: 120px;
   }
 }
