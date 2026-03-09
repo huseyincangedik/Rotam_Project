@@ -228,7 +228,7 @@ function Survey() {
   
   const simgelerMap = {
     "backend": imgBackend,
-    "frontend": imgFrontend,
+    "fronted": imgFrontend,
     "mobil": imgMobil,
     "mobile": imgMobil,
     "siber": imgSiber,
