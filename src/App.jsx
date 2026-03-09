@@ -351,8 +351,15 @@ function Admin() {
   const loadQuestions = async () => {
     setQuestionsLoading(true);
     try {
-      const res = await axios.get(`${API}/api/questions/active`, authHeader);
-      setQuestions(res.data);
+      // Admin paneli için tüm soruları çek (aktif + pasif)
+      // Önce admin endpoint'ini dene, çalışmazsa public active endpoint'i kullan
+      let res;
+      try {
+        res = await axios.get(`${API}/api/admin/questions`, authHeader);
+      } catch {
+        res = await axios.get(`${API}/api/questions/active`, authHeader);
+      }
+      setQuestions(Array.isArray(res.data) ? res.data : []);
     } catch { alert("Sorular yüklenemedi!"); }
     finally { setQuestionsLoading(false); }
   };
@@ -533,7 +540,7 @@ function Admin() {
 
             {/* ÖĞRENCİLER */}
             {activeTab === "students" && (
-              <div className="sa-section">
+              <div className="sa-section sa-section-full">
                 <h2 className="sa-section-title">Öğrenci Listesi</h2>
                 <div className="sa-filter-row">
                   <input
@@ -558,7 +565,7 @@ function Admin() {
                     <table className="sa-table">
                       <thead>
                         <tr>
-                          <th>#</th>
+                          <th style={{width:"40px"}}>#</th>
                           <th>Ad Soyad</th>
                           <th>Okul</th>
                           <th>Numara</th>
@@ -572,17 +579,22 @@ function Admin() {
                               Kayıt bulunamadı.
                             </td>
                           </tr>
-                        ) : filteredStudents.map((s, i) => (
-                          <tr key={s.id ?? i}>
-                            <td>{i + 1}</td>
-                            <td>{s.firstName} {s.lastName}</td>
-                            <td>{s.schoolName}</td>
-                            <td>{s.schoolNumber}</td>
-                            <td>
-                              <span className="sa-result-badge">{s.result ?? s.primaryArea ?? "—"}</span>
-                            </td>
-                          </tr>
-                        ))}
+                        ) : filteredStudents.map((s, i) => {
+                          // Backend farklı field adları döndürebilir — hepsini dene
+                          const resultVal =
+                            s.result ?? s.primaryArea ?? s.resultArea ?? s.area ?? s.category ?? "—";
+                          return (
+                            <tr key={s.id ?? i}>
+                              <td>{i + 1}</td>
+                              <td style={{whiteSpace:"nowrap"}}>{s.firstName} {s.lastName}</td>
+                              <td>{s.schoolName}</td>
+                              <td>{s.schoolNumber ?? s.studentNumber}</td>
+                              <td>
+                                <span className="sa-result-badge">{resultVal}</span>
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -598,16 +610,46 @@ function Admin() {
                 {statsLoading ? (
                   <p className="sa-loading">Yükleniyor...</p>
                 ) : stats ? (
-                  <div className="sa-stats-grid">
-                    {Object.entries(stats).map(([key, val]) => (
-                      <div key={key} className="sa-stat-card">
-                        <div className="sa-stat-val">
-                          {typeof val === "object" ? JSON.stringify(val) : String(val)}
-                        </div>
-                        <div className="sa-stat-key">{key}</div>
-                      </div>
-                    ))}
-                  </div>
+                  <>
+                    {/* Sayısal değerler — küçük kart grid */}
+                    <div className="sa-stats-grid">
+                      {Object.entries(stats)
+                        .filter(([, val]) => typeof val !== "object")
+                        .map(([key, val]) => (
+                          <div key={key} className="sa-stat-card">
+                            <div className="sa-stat-val">{String(val)}</div>
+                            <div className="sa-stat-key">{key}</div>
+                          </div>
+                        ))}
+                    </div>
+
+                    {/* Obje değerler — dağılım tabloları */}
+                    {Object.entries(stats)
+                      .filter(([, val]) => typeof val === "object" && val !== null)
+                      .map(([key, val]) => {
+                        const entries = Object.entries(val).sort((a, b) => b[1] - a[1]);
+                        const total = entries.reduce((s, [, n]) => s + n, 0);
+                        return (
+                          <div key={key} className="sa-dist-block">
+                            <h3 className="sa-dist-title">{key}</h3>
+                            <div className="sa-dist-list">
+                              {entries.map(([label, count]) => {
+                                const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                                return (
+                                  <div key={label} className="sa-dist-row">
+                                    <span className="sa-dist-label">{label}</span>
+                                    <div className="sa-dist-bar-wrap">
+                                      <div className="sa-dist-bar" style={{ width: `${pct}%` }} />
+                                    </div>
+                                    <span className="sa-dist-count">{count} <span className="sa-dist-pct">({pct}%)</span></span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </>
                 ) : (
                   <p className="sa-loading">Veri yok.</p>
                 )}

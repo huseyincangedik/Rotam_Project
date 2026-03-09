@@ -700,6 +700,75 @@ input {
   max-width: 860px;
 }
 
+/* Öğrenci tablosu tam genişlikte olsun */
+.sa-section-full {
+  max-width: 100%;
+}
+
+/* İstatistik dağılım blokları */
+.sa-dist-block {
+  margin-top: 28px;
+}
+
+.sa-dist-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #14b8a6;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0 0 14px;
+}
+
+.sa-dist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sa-dist-row {
+  display: grid;
+  grid-template-columns: 180px 1fr 100px;
+  align-items: center;
+  gap: 12px;
+}
+
+.sa-dist-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sa-dist-bar-wrap {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.sa-dist-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #14b8a6, #0ea5e9);
+  border-radius: 10px;
+  transition: width 0.5s ease;
+  min-width: 4px;
+}
+
+.sa-dist-count {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-align: right;
+}
+
+.sa-dist-pct {
+  font-size: 0.72rem;
+  color: #475569;
+  font-weight: 400;
+}
+
 .sa-section-header {
   display: flex;
   align-items: center;
