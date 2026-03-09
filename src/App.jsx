@@ -344,15 +344,15 @@ function Admin() {
     // eslint-disable-next-line
   }, [activeTab, token, role]);
 
-  const loadStudents = async () => {
+const loadStudents = async () => {
     setStudentsLoading(true);
     try {
       const res = await axios.get(`${API}/api/admin/students`, authHeader);
+      console.log("GELEN ÖĞRENCİ VERİSİ:", res.data); // BURAYI EKLE
       setStudents(res.data);
     } catch { alert("Öğrenciler yüklenemedi!"); }
     finally { setStudentsLoading(false); }
   };
-
   const loadStats = async () => {
     setStatsLoading(true);
     try {
