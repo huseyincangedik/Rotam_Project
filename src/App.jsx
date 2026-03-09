@@ -11,7 +11,9 @@ import imgSiber from "./assets/siber.png";
 
 const API = import.meta.env.VITE_API_URL;
 
-// --- ÖĞRENCİ ANKET ---
+// ============================================================
+// ÖĞRENCİ ANKET
+// ============================================================
 function Survey() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -52,7 +54,6 @@ function Survey() {
       return;
     }
     try {
-      // Öğrenciyi kaydet — consentGiven ve parentalConsentConfirmed backend'in beklediği alanlar
       const res = await axios.post(`${API}/api/students/register`, {
         firstName: studentInfo.firstName,
         lastName: studentInfo.lastName,
@@ -71,7 +72,6 @@ function Survey() {
 
   const handleOptionSelect = async (option) => {
     try {
-      // Her cevap için ayrı ayrı kaydet: studentId + questionId + optionId
       await axios.post(`${API}/api/responses/save`, {
         studentId,
         questionId: questions[currentQuestionIndex].id,
@@ -79,7 +79,6 @@ function Survey() {
       });
 
       if (currentQuestionIndex + 1 === questions.length) {
-        // Tüm cevaplar bitti, sonucu hesaplat ve göster
         const resultRes = await axios.get(`${API}/api/responses/result/${studentId}`);
         setResult(resultRes.data);
         setStep(3);
@@ -222,141 +221,520 @@ function Survey() {
             </div>
           )}
 
+          {step === 3 && result && (() => {
+            const alan = result.primaryArea ?? result.result ?? result;
 
-{step === 3 && result && (() => {
-  const alan = result.primaryArea ?? result.result ?? result;
-  
-  const simgelerMap = {
-    "backend": imgBackend,
-    "fronted": imgFrontend,
-    "mobil": imgMobil,
-    "mobile": imgMobil,
-    "siber": imgSiber,
-    "cyber": imgSiber,
-    "cybersecurity": imgSiber,
-    "ai": imgAI,
-    "yapay zeka": imgAI,
-  };
+            const simgelerMap = {
+              "backend": imgBackend,
+              "fronted": imgFrontend,
+              "mobil": imgMobil,
+              "mobile": imgMobil,
+              "siber": imgSiber,
+              "cyber": imgSiber,
+              "cybersecurity": imgSiber,
+              "ai": imgAI,
+              "yapay zeka": imgAI,
+            };
 
-  const simge = simgelerMap[alan?.toLowerCase()];
+            const simge = simgelerMap[alan?.toLowerCase()];
 
-  return (
-    <div>
-      <h1 className="res-title">ANALİZ TAMAMLANDI</h1>
-      <div className="res-icon">
-        {simge
-          ? <img src={simge} alt={alan} className="res-icon-img" />
-          : "💡"
-        }
-      </div>
-      <div className="res-highlight">{alan}</div>
-      <div className="res-detail-box">
-        {result.detailedMessage && <p>{result.detailedMessage}</p>}
-        {result.suggestedFrameworks && <p><strong>Teknolojiler:</strong> {result.suggestedFrameworks}</p>}
-      </div>
-      <button className="btn primary-btn" onClick={() => window.location.reload()}>YENİDEN BAŞLAT</button>
-    </div>
-  );
-})()}
+            return (
+              <div>
+                <h1 className="res-title">ANALİZ TAMAMLANDI</h1>
+                <div className="res-icon">
+                  {simge
+                    ? <img src={simge} alt={alan} className="res-icon-img" />
+                    : "💡"
+                  }
+                </div>
+                <div className="res-highlight">{alan}</div>
+                <div className="res-detail-box">
+                  {result.detailedMessage && <p>{result.detailedMessage}</p>}
+                  {result.suggestedFrameworks && <p><strong>Teknolojiler:</strong> {result.suggestedFrameworks}</p>}
+                </div>
+                <button className="btn primary-btn" onClick={() => window.location.reload()}>YENİDEN BAŞLAT</button>
+              </div>
+            );
+          })()}
         </div>
       )}
     </div>
   );
 }
 
-// --- ADMİN ---
+// ============================================================
+// ADMİN
+// ============================================================
 function Admin() {
   const navigate = useNavigate();
   const [creds, setCreds] = useState({ user: "", pass: "" });
   const [token, setToken] = useState(null);
-  const [role, setRole] = useState(null);     // "SUPER_ADMIN" | "SCHOOL_ADMIN"
+  const [role, setRole] = useState(null);
   const [schoolName, setSchoolName] = useState("");
+  const [activeTab, setActiveTab] = useState("dashboard");
 
-  const handleLogin = () => {
+  // Öğrenci listesi
+  const [students, setStudents] = useState([]);
+  const [studentsLoading, setStudentsLoading] = useState(false);
+  const [studentSearch, setStudentSearch] = useState("");
+  const [schoolFilter, setSchoolFilter] = useState("");
+
+  // İstatistikler
+  const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+
+  // Sorular
+  const [questions, setQuestions] = useState([]);
+  const [questionsLoading, setQuestionsLoading] = useState(false);
+  const [questionModal, setQuestionModal] = useState(null);
+  const [qForm, setQForm] = useState({ questionText: "", options: ["", "", "", ""] });
+  const [qSaving, setQSaving] = useState(false);
+
+  // Excel
+  const [schools, setSchools] = useState([]);
+  const [selectedSchool, setSelectedSchool] = useState("");
+  const [downloading, setDownloading] = useState(false);
+
+  const authHeader = { headers: { Authorization: `Bearer ${token}` } };
+
+  /* ---- GİRİŞ ---- */
+  const handleLogin = async () => {
     if (!creds.user || !creds.pass) {
       alert("Lütfen kullanıcı adı ve şifre alanlarını doldurun!");
       return;
     }
-    axios.post(`${API}/api/auth/login`, {
-      username: creds.user,
-      password: creds.pass
-    }).then(async res => {
+    try {
+      const res = await axios.post(`${API}/api/auth/login`, {
+        username: creds.user,
+        password: creds.pass,
+      });
       const jwt = res.data.token;
       setToken(jwt);
-
-      // Token'dan sonra admin bilgisini çek (rol ve okul adı için)
       const adminRes = await axios.get(`${API}/api/admin/me`, {
-        headers: { Authorization: `Bearer ${jwt}` }
+        headers: { Authorization: `Bearer ${jwt}` },
       });
-      setRole(adminRes.data.role);           // "SUPER_ADMIN" veya "SCHOOL_ADMIN"
+      setRole(adminRes.data.role);
       setSchoolName(adminRes.data.schoolName ?? "");
-    }).catch(() => {
+    } catch {
       alert("Giriş başarısız! Kullanıcı adı veya şifre hatalı.");
-    });
+    }
   };
 
-  const handleDownload = () => {
-    // SUPER_ADMIN → tüm okullara ait Excel
-    // SCHOOL_ADMIN → kendi okul adına ait Excel
-    const url = role === "SCHOOL_ADMIN"
-      ? `${API}/api/admin/report/excel/${schoolName}`
-      : `${API}/api/admin/report/excel`;
+  /* ---- VERİ YÜKLEME ---- */
+  useEffect(() => {
+    if (!token || role !== "SUPER_ADMIN") return;
+    if (activeTab === "students") loadStudents();
+    if (activeTab === "statistics") loadStats();
+    if (activeTab === "questions") loadQuestions();
+    if (activeTab === "excel") loadStudentsForSchools();
+    // eslint-disable-next-line
+  }, [activeTab, token, role]);
 
-    axios.get(url, {
-      headers: { Authorization: `Bearer ${token}` },
-      responseType: "blob"
-    }).then(res => {
+  const loadStudents = async () => {
+    setStudentsLoading(true);
+    try {
+      const res = await axios.get(`${API}/api/admin/students`, authHeader);
+      setStudents(res.data);
+    } catch { alert("Öğrenciler yüklenemedi!"); }
+    finally { setStudentsLoading(false); }
+  };
+
+  const loadStats = async () => {
+    setStatsLoading(true);
+    try {
+      const res = await axios.get(`${API}/api/admin/statistics`, authHeader);
+      setStats(res.data);
+    } catch { alert("İstatistikler yüklenemedi!"); }
+    finally { setStatsLoading(false); }
+  };
+
+  const loadQuestions = async () => {
+    setQuestionsLoading(true);
+    try {
+      const res = await axios.get(`${API}/api/questions/active`, authHeader);
+      setQuestions(res.data);
+    } catch { alert("Sorular yüklenemedi!"); }
+    finally { setQuestionsLoading(false); }
+  };
+
+  const loadStudentsForSchools = async () => {
+    try {
+      const res = await axios.get(`${API}/api/admin/students`, authHeader);
+      const uniqueSchools = [...new Set(res.data.map(s => s.schoolName).filter(Boolean))];
+      setSchools(uniqueSchools);
+    } catch {}
+  };
+
+  /* ---- SORULAR CRUD ---- */
+  const openAddQuestion = () => {
+    setQForm({ questionText: "", options: ["", "", "", ""] });
+    setQuestionModal("add");
+  };
+
+  const openEditQuestion = (q) => {
+    setQForm({
+      questionText: q.questionText,
+      options: q.options?.map(o => o.optionText) ?? ["", "", "", ""],
+      _id: q.id,
+    });
+    setQuestionModal(q);
+  };
+
+  const saveQuestion = async () => {
+    if (!qForm.questionText.trim()) { alert("Soru metni boş olamaz!"); return; }
+    if (qForm.options.some(o => !o.trim())) { alert("Tüm seçenekleri doldurun!"); return; }
+    setQSaving(true);
+    try {
+      const payload = {
+        questionText: qForm.questionText,
+        options: qForm.options.map(o => ({ optionText: o })),
+      };
+      if (questionModal === "add") {
+        await axios.post(`${API}/api/admin/questions`, payload, authHeader);
+      } else {
+        await axios.put(`${API}/api/admin/questions/${qForm._id}`, payload, authHeader);
+      }
+      setQuestionModal(null);
+      loadQuestions();
+    } catch { alert("Soru kaydedilemedi!"); }
+    finally { setQSaving(false); }
+  };
+
+  const deleteQuestion = async (id) => {
+    if (!window.confirm("Bu soruyu silmek istediğinizden emin misiniz?")) return;
+    try {
+      await axios.delete(`${API}/api/admin/questions/${id}`, authHeader);
+      loadQuestions();
+    } catch { alert("Soru silinemedi!"); }
+  };
+
+  /* ---- EXCEL İNDİR ---- */
+  const handleDownload = async (schoolOverride) => {
+    const target = schoolOverride !== undefined ? schoolOverride : selectedSchool;
+    const url = !target
+      ? `${API}/api/admin/report/excel`
+      : `${API}/api/admin/report/excel/${target}`;
+    setDownloading(true);
+    try {
+      const res = await axios.get(url, { ...authHeader, responseType: "blob" });
       const blobUrl = window.URL.createObjectURL(new Blob([res.data]));
       const a = document.createElement("a");
       a.href = blobUrl;
-      a.download = role === "SCHOOL_ADMIN" ? `${schoolName}_rapor.xlsx` : "tum_rapor.xlsx";
+      a.download = target ? `${target}_rapor.xlsx` : "tum_rapor.xlsx";
       a.click();
-    }).catch(() => {
-      alert("Veri indirilemedi!");
-    });
+    } catch { alert("Veri indirilemedi!"); }
+    finally { setDownloading(false); }
   };
 
+  /* ---- SCHOOL_ADMIN basit panel ---- */
+  const SchoolAdminPanel = () => (
+    <>
+      <div className="role-badge school-badge">🏫 Okul Admini</div>
+      <p className="subtitle dark-subtitle">
+        <strong style={{ color: "#14b8a6" }}>{schoolName}</strong> okuluna ait veriler indirilecek
+      </p>
+      <button
+        className="btn primary-btn"
+        onClick={() => handleDownload(schoolName)}
+        disabled={downloading}
+      >
+        {downloading ? "⏳ İndiriliyor..." : "⬇️ OKUL VERİSİNİ İNDİR"}
+      </button>
+    </>
+  );
+
+  /* ---- SUPER ADMIN sekme tanımları ---- */
+  const TABS = [
+    { id: "dashboard",   label: "🏠 Ana Sayfa"    },
+    { id: "students",    label: "👥 Öğrenciler"   },
+    { id: "statistics",  label: "📊 İstatistikler" },
+    { id: "questions",   label: "❓ Sorular"       },
+    { id: "excel",       label: "📥 Excel"         },
+  ];
+
+  const filteredStudents = students.filter(s => {
+    const q = studentSearch.toLowerCase();
+    const matchSearch = !q || `${s.firstName} ${s.lastName} ${s.schoolNumber}`.toLowerCase().includes(q);
+    const matchSchool = !schoolFilter || s.schoolName === schoolFilter;
+    return matchSearch && matchSchool;
+  });
+
+  const uniqueStudentSchools = [...new Set(students.map(s => s.schoolName).filter(Boolean))];
+
+  /* ---- RENDER ---- */
   return (
     <div className="admin-page-wrapper">
-      <div className="card dark-card admin-card">
-        <h1 className="title dark-title">🛠️ Yönetici Paneli</h1>
 
-        {!token && (
-          <>
-            <p className="subtitle dark-subtitle">Giriş yapın</p>
-            <div className="input-group admin-input-group">
-              <input placeholder="Kullanıcı Adı" onChange={e => setCreds({ ...creds, user: e.target.value })} />
-              <input type="password" placeholder="Şifre" onChange={e => setCreds({ ...creds, pass: e.target.value })} />
+      {/* GİRİŞ FORMU */}
+      {!token && (
+        <div className="card dark-card admin-card">
+          <h1 className="title dark-title">🛠️ Yönetici Paneli</h1>
+          <p className="subtitle dark-subtitle">Giriş yapın</p>
+          <div className="input-group admin-input-group">
+            <input placeholder="Kullanıcı Adı" onChange={e => setCreds({ ...creds, user: e.target.value })} />
+            <input type="password" placeholder="Şifre" onChange={e => setCreds({ ...creds, pass: e.target.value })} />
+          </div>
+          <button className="btn primary-btn" onClick={handleLogin}>GİRİŞ YAP</button>
+          <button className="btn admin-btn" onClick={() => navigate("/")}>← Geri Dön</button>
+        </div>
+      )}
+
+      {/* SCHOOL ADMIN */}
+      {token && role === "SCHOOL_ADMIN" && (
+        <div className="card dark-card admin-card">
+          <h1 className="title dark-title">🛠️ Yönetici Paneli</h1>
+          <SchoolAdminPanel />
+          <button className="btn admin-btn" onClick={() => navigate("/")}>← Geri Dön</button>
+        </div>
+      )}
+
+      {/* SUPER ADMIN */}
+      {token && role === "SUPER_ADMIN" && (
+        <div className="super-admin-wrapper">
+
+          {/* Sidebar */}
+          <aside className="sa-sidebar">
+            <div className="sa-sidebar-header">
+              <span className="sa-logo">⚙️</span>
+              <span className="sa-sidebar-title">Süper Admin</span>
             </div>
-            <button className="btn primary-btn" onClick={handleLogin}>GİRİŞ YAP</button>
-          </>
-        )}
+            <nav className="sa-nav">
+              {TABS.map(t => (
+                <button
+                  key={t.id}
+                  className={`sa-nav-btn ${activeTab === t.id ? "sa-nav-active" : ""}`}
+                  onClick={() => setActiveTab(t.id)}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </nav>
+            <button className="btn admin-btn sa-back-btn" onClick={() => navigate("/")}>← Geri Dön</button>
+          </aside>
 
-        {token && role === "SUPER_ADMIN" && (
-          <>
-            <div className="role-badge developer-badge">🧑‍💻 Yazılımcı Admini</div>
-            <p className="subtitle dark-subtitle">Tüm okullara ait veriler indirilecek</p>
-            <button className="btn primary-btn" onClick={handleDownload}>⬇️ TÜM VERİYİ İNDİR</button>
-          </>
-        )}
+          {/* İçerik */}
+          <main className="sa-content">
 
-        {token && role === "SCHOOL_ADMIN" && (
-          <>
-            <div className="role-badge school-badge">🏫 Okul Admini</div>
-            <p className="subtitle dark-subtitle">
-              <strong style={{ color: "#14b8a6" }}>{schoolName}</strong> okuluna ait veriler indirilecek
-            </p>
-            <button className="btn primary-btn" onClick={handleDownload}>⬇️ OKUL VERİSİNİ İNDİR</button>
-          </>
-        )}
+            {/* ANA SAYFA */}
+            {activeTab === "dashboard" && (
+              <div className="sa-section">
+                <h2 className="sa-section-title">Hoş Geldiniz 👋</h2>
+                <p className="sa-section-sub">Rotam Süper Admin Paneli — sol menüden işlem seçin.</p>
+                <div className="sa-dashboard-grid">
+                  {TABS.slice(1).map(t => (
+                    <button key={t.id} className="sa-dash-card" onClick={() => setActiveTab(t.id)}>
+                      <span className="sa-dash-icon">{t.label.split(" ")[0]}</span>
+                      <span className="sa-dash-label">{t.label.split(" ").slice(1).join(" ")}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
-        <button className="btn admin-btn" onClick={() => navigate("/")}>← Geri Dön</button>
-      </div>
+            {/* ÖĞRENCİLER */}
+            {activeTab === "students" && (
+              <div className="sa-section">
+                <h2 className="sa-section-title">Öğrenci Listesi</h2>
+                <div className="sa-filter-row">
+                  <input
+                    className="sa-search"
+                    placeholder="🔍 Ad, soyad veya numara ara..."
+                    value={studentSearch}
+                    onChange={e => setStudentSearch(e.target.value)}
+                  />
+                  <select
+                    className="sa-select"
+                    value={schoolFilter}
+                    onChange={e => setSchoolFilter(e.target.value)}
+                  >
+                    <option value="">Tüm Okullar</option>
+                    {uniqueStudentSchools.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                {studentsLoading ? (
+                  <p className="sa-loading">Yükleniyor...</p>
+                ) : (
+                  <div className="sa-table-wrap">
+                    <table className="sa-table">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Ad Soyad</th>
+                          <th>Okul</th>
+                          <th>Numara</th>
+                          <th>Sonuç</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredStudents.length === 0 ? (
+                          <tr>
+                            <td colSpan={5} style={{ textAlign: "center", color: "#94a3b8", padding: "20px" }}>
+                              Kayıt bulunamadı.
+                            </td>
+                          </tr>
+                        ) : filteredStudents.map((s, i) => (
+                          <tr key={s.id ?? i}>
+                            <td>{i + 1}</td>
+                            <td>{s.firstName} {s.lastName}</td>
+                            <td>{s.schoolName}</td>
+                            <td>{s.schoolNumber}</td>
+                            <td>
+                              <span className="sa-result-badge">{s.result ?? s.primaryArea ?? "—"}</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                <p className="sa-count">Toplam: {filteredStudents.length} öğrenci</p>
+              </div>
+            )}
+
+            {/* İSTATİSTİKLER */}
+            {activeTab === "statistics" && (
+              <div className="sa-section">
+                <h2 className="sa-section-title">İstatistikler</h2>
+                {statsLoading ? (
+                  <p className="sa-loading">Yükleniyor...</p>
+                ) : stats ? (
+                  <div className="sa-stats-grid">
+                    {Object.entries(stats).map(([key, val]) => (
+                      <div key={key} className="sa-stat-card">
+                        <div className="sa-stat-val">
+                          {typeof val === "object" ? JSON.stringify(val) : String(val)}
+                        </div>
+                        <div className="sa-stat-key">{key}</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="sa-loading">Veri yok.</p>
+                )}
+              </div>
+            )}
+
+            {/* SORULAR */}
+            {activeTab === "questions" && (
+              <div className="sa-section">
+                <div className="sa-section-header">
+                  <h2 className="sa-section-title">Sorular</h2>
+                  <button className="btn primary-btn sa-add-btn" onClick={openAddQuestion}>+ Soru Ekle</button>
+                </div>
+                {questionsLoading ? (
+                  <p className="sa-loading">Yükleniyor...</p>
+                ) : (
+                  <div className="sa-q-list">
+                    {questions.length === 0 && <p className="sa-loading">Soru bulunamadı.</p>}
+                    {questions.map((q, i) => (
+                      <div key={q.id} className="sa-q-card">
+                        <div className="sa-q-top">
+                          <span className="sa-q-num">{i + 1}</span>
+                          <span className="sa-q-text">{q.questionText}</span>
+                          <div className="sa-q-actions">
+                            <button className="sa-btn-edit" onClick={() => openEditQuestion(q)}>✏️ Düzenle</button>
+                            <button className="sa-btn-delete" onClick={() => deleteQuestion(q.id)}>🗑️ Sil</button>
+                          </div>
+                        </div>
+                        <div className="sa-q-opts">
+                          {q.options?.map((o, oi) => (
+                            <span key={oi} className="sa-q-opt">{o.optionText}</span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Soru Modal */}
+                {questionModal && (
+                  <div className="modal-overlay" onClick={() => setQuestionModal(null)}>
+                    <div className="modal-box" onClick={e => e.stopPropagation()}>
+                      <h2 className="modal-title">
+                        {questionModal === "add" ? "Yeni Soru Ekle" : "Soruyu Düzenle"}
+                      </h2>
+                      <input
+                        className="sa-modal-input"
+                        placeholder="Soru metni"
+                        value={qForm.questionText}
+                        onChange={e => setQForm({ ...qForm, questionText: e.target.value })}
+                      />
+                      <p className="modal-section-title">Seçenekler</p>
+                      {qForm.options.map((opt, i) => (
+                        <input
+                          key={i}
+                          className="sa-modal-input"
+                          placeholder={`Seçenek ${i + 1}`}
+                          value={opt}
+                          onChange={e => {
+                            const opts = [...qForm.options];
+                            opts[i] = e.target.value;
+                            setQForm({ ...qForm, options: opts });
+                          }}
+                        />
+                      ))}
+                      <button className="btn primary-btn" onClick={saveQuestion} disabled={qSaving}>
+                        {qSaving ? "Kaydediliyor..." : "💾 Kaydet"}
+                      </button>
+                      <button className="btn admin-btn" style={{ marginTop: "8px" }} onClick={() => setQuestionModal(null)}>
+                        İptal
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* EXCEL */}
+            {activeTab === "excel" && (
+              <div className="sa-section">
+                <h2 className="sa-section-title">Excel Raporu İndir</h2>
+
+                <div className="sa-excel-card">
+                  <h3 className="sa-excel-card-title">🌐 Tüm Okullar</h3>
+                  <p className="sa-excel-desc">Sistemdeki tüm okullara ait verileri tek dosyada indir.</p>
+                  <button
+                    className="btn primary-btn"
+                    onClick={() => handleDownload("")}
+                    disabled={downloading}
+                  >
+                    {downloading ? "⏳ İndiriliyor..." : "⬇️ TÜM VERİYİ İNDİR"}
+                  </button>
+                </div>
+
+                <div className="sa-excel-card">
+                  <h3 className="sa-excel-card-title">🏫 Okul Bazlı</h3>
+                  <p className="sa-excel-desc">Belirli bir okula ait verileri indir.</p>
+                  <select
+                    className="sa-select sa-select-full"
+                    value={selectedSchool}
+                    onChange={e => setSelectedSchool(e.target.value)}
+                  >
+                    <option value="">— Okul Seçin —</option>
+                    {schools.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                  <button
+                    className="btn primary-btn"
+                    onClick={() => handleDownload(selectedSchool)}
+                    disabled={!selectedSchool || downloading}
+                    style={{ marginTop: "10px" }}
+                  >
+                    {downloading ? "⏳ İndiriliyor..." : `⬇️ ${selectedSchool || "Okul"} Verisini İndir`}
+                  </button>
+                </div>
+              </div>
+            )}
+
+          </main>
+        </div>
+      )}
     </div>
   );
 }
 
-// --- APP ---
+// ============================================================
+// APP
+// ============================================================
 export default function App() {
   return (
     <Router>
