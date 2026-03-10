@@ -93,7 +93,6 @@ function Survey() {
 
   return (
     <div className="survey-container">
-      {/* AŞAMA 1: LAMBALI GİRİŞ EKRANI */}
       {step === 1 && (
         <div className={`lamp-page-wrapper ${isLampOn ? "lamp-on" : "lamp-off"}`}>
           <div className="lamp-container">
@@ -151,7 +150,6 @@ function Survey() {
             </div>
           </div>
 
-          {/* MODAL 1 - AYDINLATMA METNİ */}
           {showModal1 && (
             <div className="modal-overlay" onClick={() => setShowModal1(false)}>
               <div className="modal-box" onClick={e => e.stopPropagation()}>
@@ -185,7 +183,6 @@ function Survey() {
             </div>
           )}
 
-          {/* MODAL 2 - RIZA BEYANI */}
           {showModal2 && (
             <div className="modal-overlay" onClick={() => setShowModal2(false)}>
               <div className="modal-box" onClick={e => e.stopPropagation()}>
@@ -201,7 +198,6 @@ function Survey() {
         </div>
       )}
 
-      {/* AŞAMA 2 ve 3: ANKET / SONUÇ */}
       {(step === 2 || step === 3) && (
         <div className="card">
           {step === 2 && questions.length > 0 && (
@@ -253,9 +249,9 @@ function Survey() {
                 <div className="res-icon" style={{ display: "flex", justifyContent: "center", gap: "20px", flexWrap: "wrap", margin: "10px 0" }}>
                   {eslesenSimgeler.length > 0
                     ? eslesenSimgeler.map((simge, index) => (
-                      <img key={index} src={simge} alt="Alan Simgesi" className="res-icon-img" style={{ width: "90px", height: "90px" }} />
-                    ))
-                    : "💻"
+                        <img key={index} src={simge} alt="Alan Simgesi" className="res-icon-img" style={{ width: "90px", height: "90px" }} />
+                      ))
+                    : "💡"
                   }
                 </div>
                 <div className="res-highlight">{alan}</div>
@@ -269,6 +265,292 @@ function Survey() {
           })()}
         </div>
       )}
+    </div>
+  );
+}
+
+// ============================================================
+// OKUL ADMİN PANELİ
+// ============================================================
+function SchoolAdminPanel({ token, schoolName, onLogout }) {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("dashboard");
+
+  // Öğrenci listesi
+  const [students, setStudents] = useState([]);
+  const [studentsLoading, setStudentsLoading] = useState(false);
+  const [studentSearch, setStudentSearch] = useState("");
+
+  // İstatistikler
+  const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(false);
+
+  // Excel
+  const [downloading, setDownloading] = useState(false);
+
+  const authHeader = { headers: { Authorization: `Bearer ${token}` } };
+
+  const SCHOOL_TABS = [
+    { id: "dashboard",  label: "🏠 Ana Sayfa"    },
+    { id: "students",   label: "👥 Öğrenciler"   },
+    { id: "statistics", label: "📊 İstatistikler" },
+    { id: "excel",      label: "📥 Excel"         },
+  ];
+
+  useEffect(() => {
+    if (activeTab === "students") loadStudents();
+    if (activeTab === "statistics") loadStats();
+    // eslint-disable-next-line
+  }, [activeTab]);
+
+  const loadStudents = async () => {
+    setStudentsLoading(true);
+    try {
+      // Okul admini kendi okulunun öğrencilerini çeker
+      const res = await axios.get(`${API}/api/admin/students`, authHeader);
+      // Sadece kendi okuluna ait olanları filtrele (backend zaten filtreliyorsa gerek yok)
+      const filtered = res.data.filter(s =>
+        !schoolName || s.schoolName === schoolName
+      );
+      setStudents(filtered);
+    } catch { alert("Öğrenciler yüklenemedi!"); }
+    finally { setStudentsLoading(false); }
+  };
+
+  const loadStats = async () => {
+    setStatsLoading(true);
+    try {
+      const res = await axios.get(`${API}/api/admin/statistics`, authHeader);
+      setStats(res.data);
+    } catch { alert("İstatistikler yüklenemedi!"); }
+    finally { setStatsLoading(false); }
+  };
+
+  const handleDownload = async () => {
+    const url = `${API}/api/admin/report/excel/${schoolName}`;
+    setDownloading(true);
+    try {
+      const res = await axios.get(url, { ...authHeader, responseType: "blob" });
+      const blobUrl = window.URL.createObjectURL(new Blob([res.data]));
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `${schoolName}_rapor.xlsx`;
+      a.click();
+    } catch { alert("Veri indirilemedi!"); }
+    finally { setDownloading(false); }
+  };
+
+  const filteredStudents = students.filter(s => {
+    const q = studentSearch.toLowerCase();
+    return !q || `${s.firstName} ${s.lastName} ${s.schoolNumber}`.toLowerCase().includes(q);
+  });
+
+  return (
+    <div className="super-admin-wrapper">
+
+      {/* Sidebar */}
+      <aside className="sa-sidebar">
+        <div className="sa-sidebar-header">
+          <span className="sa-logo">🏫</span>
+          <span className="sa-sidebar-title">Okul Admini</span>
+        </div>
+
+        {/* Okul adı badge */}
+        <div className="sa-school-badge-sidebar">
+          {schoolName}
+        </div>
+
+        <nav className="sa-nav">
+          {SCHOOL_TABS.map(t => (
+            <button
+              key={t.id}
+              className={`sa-nav-btn ${activeTab === t.id ? "sa-nav-active" : ""}`}
+              onClick={() => setActiveTab(t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </nav>
+        <button className="btn admin-btn sa-back-btn" onClick={() => navigate("/")}>← Geri Dön</button>
+      </aside>
+
+      {/* İçerik */}
+      <main className="sa-content">
+
+        {/* ANA SAYFA */}
+        {activeTab === "dashboard" && (
+          <div className="sa-section">
+            <h2 className="sa-section-title">Hoş Geldiniz 👋</h2>
+            <p className="sa-section-sub">
+              <span style={{ color: "#14b8a6", fontWeight: 900 }}>{schoolName}</span> — Okul Admin Paneli
+            </p>
+            <div className="sa-dashboard-grid">
+              {SCHOOL_TABS.slice(1).map(t => (
+                <button key={t.id} className="sa-dash-card" onClick={() => setActiveTab(t.id)}>
+                  <span className="sa-dash-icon">{t.label.split(" ")[0]}</span>
+                  <span className="sa-dash-label">{t.label.split(" ").slice(1).join(" ")}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Özet bilgi kartı */}
+            <div className="sa-info-card">
+              <div className="sa-info-icon">🏫</div>
+              <div>
+                <p className="sa-info-title">Okul Yetki Alanı</p>
+                <p className="sa-info-desc">
+                  Bu panel yalnızca <strong style={{ color: "#14b8a6" }}>{schoolName}</strong> okuluna ait verileri görüntülemenize ve indirmenize olanak tanır.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ÖĞRENCİLER */}
+        {activeTab === "students" && (
+          <div className="sa-section sa-section-full">
+            <h2 className="sa-section-title">Öğrenci Listesi</h2>
+            <p className="sa-section-sub">
+              <span style={{ color: "#14b8a6", fontWeight: 700 }}>{schoolName}</span> okuluna kayıtlı öğrenciler
+            </p>
+            <div className="sa-filter-row">
+              <input
+                className="sa-search"
+                placeholder="🔍 Ad, soyad veya numara ara..."
+                value={studentSearch}
+                onChange={e => setStudentSearch(e.target.value)}
+              />
+            </div>
+            {studentsLoading ? (
+              <p className="sa-loading">Yükleniyor...</p>
+            ) : (
+              <div className="sa-table-wrap">
+                <table className="sa-table">
+                  <thead>
+                    <tr>
+                      <th style={{ width: "40px" }}>#</th>
+                      <th>Ad Soyad</th>
+                      <th>Numara</th>
+                      <th>Sonuç</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredStudents.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} style={{ textAlign: "center", color: "#94a3b8", padding: "20px" }}>
+                          Kayıt bulunamadı.
+                        </td>
+                      </tr>
+                    ) : filteredStudents.map((s, i) => {
+                      const resultVal = s.resultRole ?? s.result ?? s.primaryArea ?? "—";
+                      return (
+                        <tr key={s.id ?? i}>
+                          <td>{i + 1}</td>
+                          <td style={{ whiteSpace: "nowrap" }}>{s.firstName} {s.lastName}</td>
+                          <td>{s.schoolNumber ?? s.studentNumber}</td>
+                          <td>
+                            <span className="sa-result-badge">{resultVal}</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            <p className="sa-count">Toplam: {filteredStudents.length} öğrenci</p>
+          </div>
+        )}
+
+        {/* İSTATİSTİKLER */}
+        {activeTab === "statistics" && (
+          <div className="sa-section">
+            <h2 className="sa-section-title">İstatistikler</h2>
+            <p className="sa-section-sub">
+              <span style={{ color: "#14b8a6", fontWeight: 700 }}>{schoolName}</span> okuluna ait alan dağılımı
+            </p>
+            {statsLoading ? (
+              <p className="sa-loading">Yükleniyor...</p>
+            ) : stats ? (
+              <>
+                <div className="sa-stats-grid">
+                  {Object.entries(stats)
+                    .filter(([, val]) => typeof val !== "object")
+                    .map(([key, val]) => (
+                      <div key={key} className="sa-stat-card">
+                        <div className="sa-stat-val">{String(val)}</div>
+                        <div className="sa-stat-key">{key}</div>
+                      </div>
+                    ))}
+                </div>
+
+                {Object.entries(stats)
+                  .filter(([, val]) => typeof val === "object" && val !== null)
+                  .map(([key, val]) => {
+                    const entries = Object.entries(val).sort((a, b) => b[1] - a[1]);
+                    const total = entries.reduce((s, [, n]) => s + n, 0);
+                    return (
+                      <div key={key} className="sa-dist-block">
+                        <h3 className="sa-dist-title">{key}</h3>
+                        <div className="sa-dist-list">
+                          {entries.map(([label, count]) => {
+                            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                            return (
+                              <div key={label} className="sa-dist-row">
+                                <span className="sa-dist-label">{label}</span>
+                                <div className="sa-dist-bar-wrap">
+                                  <div className="sa-dist-bar" style={{ width: `${pct}%` }} />
+                                </div>
+                                <span className="sa-dist-count">{count} <span className="sa-dist-pct">({pct}%)</span></span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </>
+            ) : (
+              <p className="sa-loading">Veri yok.</p>
+            )}
+          </div>
+        )}
+
+        {/* EXCEL */}
+        {activeTab === "excel" && (
+          <div className="sa-section">
+            <h2 className="sa-section-title">Excel Raporu İndir</h2>
+            <p className="sa-section-sub">Okulunuza ait verileri Excel formatında indirin</p>
+
+            <div className="sa-excel-card">
+              <h3 className="sa-excel-card-title">🏫 {schoolName}</h3>
+              <p className="sa-excel-desc">
+                Tüm öğrenci kayıtlarını ve anket sonuçlarını içeren Excel raporunu indirin.
+              </p>
+              <button
+                className="btn primary-btn"
+                onClick={handleDownload}
+                disabled={downloading}
+                style={{ width: "auto", padding: "10px 28px" }}
+              >
+                {downloading ? "⏳ İndiriliyor..." : "⬇️ OKUL VERİSİNİ İNDİR"}
+              </button>
+            </div>
+
+            {/* Bilgi notu */}
+            <div className="sa-info-card" style={{ marginTop: "16px" }}>
+              <div className="sa-info-icon">ℹ️</div>
+              <div>
+                <p className="sa-info-title">Rapor İçeriği</p>
+                <p className="sa-info-desc">
+                  İndirilen dosya; öğrenci adı, soyadı, okul numarası ve anket sonuç alanını içermektedir.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+      </main>
     </div>
   );
 }
@@ -308,7 +590,6 @@ function Admin() {
 
   const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
-  /* ---- GİRİŞ ---- */
   const handleLogin = async () => {
     if (!creds.user || !creds.pass) {
       alert("Lütfen kullanıcı adı ve şifre alanlarını doldurun!");
@@ -331,13 +612,12 @@ function Admin() {
     }
   };
 
-  /* ---- VERİ YÜKLEME ---- */
   useEffect(() => {
-    if (!token) return;
+    if (!token || role !== "SUPER_ADMIN") return;
     if (activeTab === "students") loadStudents();
     if (activeTab === "statistics") loadStats();
-    if (activeTab === "questions" && role === "SUPER_ADMIN") loadQuestions();
-    if (activeTab === "excel" && role === "SUPER_ADMIN") loadStudentsForSchools();
+    if (activeTab === "questions") loadQuestions();
+    if (activeTab === "excel") loadStudentsForSchools();
     // eslint-disable-next-line
   }, [activeTab, token, role]);
 
@@ -378,10 +658,9 @@ function Admin() {
       const res = await axios.get(`${API}/api/admin/students`, authHeader);
       const uniqueSchools = [...new Set(res.data.map(s => s.schoolName).filter(Boolean))];
       setSchools(uniqueSchools);
-    } catch { }
+    } catch {}
   };
 
-  /* ---- SORULAR CRUD ---- */
   const openAddQuestion = () => {
     setQForm({ questionText: "", options: ["", "", "", ""] });
     setQuestionModal("add");
@@ -424,7 +703,6 @@ function Admin() {
     } catch { alert("Soru silinemedi!"); }
   };
 
-  /* ---- EXCEL İNDİR ---- */
   const handleDownload = async (schoolOverride) => {
     const target = schoolOverride !== undefined ? schoolOverride : selectedSchool;
     const url = !target
@@ -442,34 +720,23 @@ function Admin() {
     finally { setDownloading(false); }
   };
 
-  /* ---- SEKME VE ROL TANIMLARI ---- */
-  const ALL_TABS = [
-    { id: "dashboard", label: "🏠 Ana Sayfa", roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"] },
-    { id: "students", label: "👥 Öğrenciler", roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"] },
-    { id: "statistics", label: "📊 İstatistikler", roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"] },
-    { id: "questions", label: "❓ Sorular", roles: ["SUPER_ADMIN"] },
-    { id: "excel", label: "📥 Excel", roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"] },
+  const TABS = [
+    { id: "dashboard",   label: "🏠 Ana Sayfa"    },
+    { id: "students",    label: "👥 Öğrenciler"   },
+    { id: "statistics",  label: "📊 İstatistikler" },
+    { id: "questions",   label: "❓ Sorular"       },
+    { id: "excel",       label: "📥 Excel"         },
   ];
 
-  // Kullanıcının rolüne göre görebileceği sekmeleri filtrele
-  const TABS = ALL_TABS.filter(t => t.roles.includes(role));
-
-  // Okul adminiyse sadece kendi okulunu görmesi için tablo filtresi
   const filteredStudents = students.filter(s => {
     const q = studentSearch.toLowerCase();
     const matchSearch = !q || `${s.firstName} ${s.lastName} ${s.schoolNumber}`.toLowerCase().includes(q);
-
-    // Okul admini ise arka planda kendi okulunu otomatik filtrele
-    const matchSchool = role === "SCHOOL_ADMIN"
-      ? s.schoolName === schoolName
-      : (!schoolFilter || s.schoolName === schoolFilter);
-
+    const matchSchool = !schoolFilter || s.schoolName === schoolFilter;
     return matchSearch && matchSchool;
   });
 
   const uniqueStudentSchools = [...new Set(students.map(s => s.schoolName).filter(Boolean))];
 
-  /* ---- RENDER ---- */
   return (
     <div className="admin-page-wrapper">
 
@@ -487,15 +754,23 @@ function Admin() {
         </div>
       )}
 
-      {/* ORTAK ADMİN PANELİ (HEM SUPER HEM OKUL ADMİNİ İÇİN) */}
-      {token && (role === "SUPER_ADMIN" || role === "SCHOOL_ADMIN") && (
+      {/* SCHOOL ADMIN — TAM PANEL */}
+      {token && role === "SCHOOL_ADMIN" && (
+        <SchoolAdminPanel
+          token={token}
+          schoolName={schoolName}
+          onLogout={() => { setToken(null); setRole(null); }}
+        />
+      )}
+
+      {/* SUPER ADMIN */}
+      {token && role === "SUPER_ADMIN" && (
         <div className="super-admin-wrapper">
 
-          {/* Sidebar */}
           <aside className="sa-sidebar">
             <div className="sa-sidebar-header">
               <span className="sa-logo">⚙️</span>
-              <span className="sa-sidebar-title">{role === "SUPER_ADMIN" ? "Süper Admin" : "Okul Admini"}</span>
+              <span className="sa-sidebar-title">Süper Admin</span>
             </div>
             <nav className="sa-nav">
               {TABS.map(t => (
@@ -511,14 +786,12 @@ function Admin() {
             <button className="btn admin-btn sa-back-btn" onClick={() => navigate("/")}>← Geri Dön</button>
           </aside>
 
-          {/* İçerik */}
           <main className="sa-content">
 
-            {/* ANA SAYFA */}
             {activeTab === "dashboard" && (
               <div className="sa-section">
                 <h2 className="sa-section-title">Hoş Geldiniz 👋</h2>
-                <p className="sa-section-sub">Rotam {role === "SUPER_ADMIN" ? "Süper Admin" : "Okul Admin"} Paneli — sol menüden işlem seçin.</p>
+                <p className="sa-section-sub">Rotam Süper Admin Paneli — sol menüden işlem seçin.</p>
                 <div className="sa-dashboard-grid">
                   {TABS.slice(1).map(t => (
                     <button key={t.id} className="sa-dash-card" onClick={() => setActiveTab(t.id)}>
@@ -530,7 +803,6 @@ function Admin() {
               </div>
             )}
 
-            {/* ÖĞRENCİLER */}
             {activeTab === "students" && (
               <div className="sa-section sa-section-full">
                 <h2 className="sa-section-title">Öğrenci Listesi</h2>
@@ -541,17 +813,14 @@ function Admin() {
                     value={studentSearch}
                     onChange={e => setStudentSearch(e.target.value)}
                   />
-                  {/* Okul filtresi dropdown'unu sadece Super Admin görebilir */}
-                  {role === "SUPER_ADMIN" && (
-                    <select
-                      className="sa-select"
-                      value={schoolFilter}
-                      onChange={e => setSchoolFilter(e.target.value)}
-                    >
-                      <option value="">Tüm Okullar</option>
-                      {uniqueStudentSchools.map(s => <option key={s} value={s}>{s}</option>)}
-                    </select>
-                  )}
+                  <select
+                    className="sa-select"
+                    value={schoolFilter}
+                    onChange={e => setSchoolFilter(e.target.value)}
+                  >
+                    <option value="">Tüm Okullar</option>
+                    {uniqueStudentSchools.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
                 </div>
                 {studentsLoading ? (
                   <p className="sa-loading">Yükleniyor...</p>
@@ -596,7 +865,6 @@ function Admin() {
               </div>
             )}
 
-            {/* İSTATİSTİKLER */}
             {activeTab === "statistics" && (
               <div className="sa-section">
                 <h2 className="sa-section-title">İstatistikler</h2>
@@ -647,8 +915,7 @@ function Admin() {
               </div>
             )}
 
-            {/* SORULAR (SADECE SÜPER ADMİN GÖRÜR) */}
-            {activeTab === "questions" && role === "SUPER_ADMIN" && (
+            {activeTab === "questions" && (
               <div className="sa-section">
                 <div className="sa-section-header">
                   <h2 className="sa-section-title">Sorular</h2>
@@ -679,7 +946,6 @@ function Admin() {
                   </div>
                 )}
 
-                {/* Soru Modal */}
                 {questionModal && (
                   <div className="modal-overlay" onClick={() => setQuestionModal(null)}>
                     <div className="modal-box" onClick={e => e.stopPropagation()}>
@@ -718,62 +984,42 @@ function Admin() {
               </div>
             )}
 
-            {/* EXCEL */}
             {activeTab === "excel" && (
               <div className="sa-section">
                 <h2 className="sa-section-title">Excel Raporu İndir</h2>
 
-                {role === "SUPER_ADMIN" && (
-                  <>
-                    <div className="sa-excel-card">
-                      <h3 className="sa-excel-card-title">🌐 Tüm Okullar</h3>
-                      <p className="sa-excel-desc">Sistemdeki tüm okullara ait verileri tek dosyada indir.</p>
-                      <button
-                        className="btn primary-btn"
-                        onClick={() => handleDownload("")}
-                        disabled={downloading}
-                      >
-                        {downloading ? "⏳ İndiriliyor..." : "⬇️ TÜM VERİYİ İNDİR"}
-                      </button>
-                    </div>
+                <div className="sa-excel-card">
+                  <h3 className="sa-excel-card-title">🌐 Tüm Okullar</h3>
+                  <p className="sa-excel-desc">Sistemdeki tüm okullara ait verileri tek dosyada indir.</p>
+                  <button
+                    className="btn primary-btn"
+                    onClick={() => handleDownload("")}
+                    disabled={downloading}
+                  >
+                    {downloading ? "⏳ İndiriliyor..." : "⬇️ TÜM VERİYİ İNDİR"}
+                  </button>
+                </div>
 
-                    <div className="sa-excel-card">
-                      <h3 className="sa-excel-card-title">🏫 Okul Bazlı</h3>
-                      <p className="sa-excel-desc">Belirli bir okula ait verileri indir.</p>
-                      <select
-                        className="sa-select sa-select-full"
-                        value={selectedSchool}
-                        onChange={e => setSelectedSchool(e.target.value)}
-                      >
-                        <option value="">— Okul Seçin —</option>
-                        {schools.map(s => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                      <button
-                        className="btn primary-btn"
-                        onClick={() => handleDownload(selectedSchool)}
-                        disabled={!selectedSchool || downloading}
-                        style={{ marginTop: "10px" }}
-                      >
-                        {downloading ? "⏳ İndiriliyor..." : `⬇️ ${selectedSchool || "Okul"} Verisini İndir`}
-                      </button>
-                    </div>
-                  </>
-                )}
-
-                {/* SADECE OKUL ADMİNİ İÇİN EXCEL KARTI */}
-                {role === "SCHOOL_ADMIN" && (
-                  <div className="sa-excel-card">
-                    <h3 className="sa-excel-card-title">🏫 Okul Verisi</h3>
-                    <p className="sa-excel-desc"><strong style={{ color: "#14b8a6" }}>{schoolName}</strong> okuluna ait tüm öğrencilerin verilerini indir.</p>
-                    <button
-                      className="btn primary-btn"
-                      onClick={() => handleDownload(schoolName)}
-                      disabled={downloading}
-                    >
-                      {downloading ? "⏳ İndiriliyor..." : "⬇️ OKUL VERİSİNİ İNDİR"}
-                    </button>
-                  </div>
-                )}
+                <div className="sa-excel-card">
+                  <h3 className="sa-excel-card-title">🏫 Okul Bazlı</h3>
+                  <p className="sa-excel-desc">Belirli bir okula ait verileri indir.</p>
+                  <select
+                    className="sa-select sa-select-full"
+                    value={selectedSchool}
+                    onChange={e => setSelectedSchool(e.target.value)}
+                  >
+                    <option value="">— Okul Seçin —</option>
+                    {schools.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                  <button
+                    className="btn primary-btn"
+                    onClick={() => handleDownload(selectedSchool)}
+                    disabled={!selectedSchool || downloading}
+                    style={{ marginTop: "10px" }}
+                  >
+                    {downloading ? "⏳ İndiriliyor..." : `⬇️ ${selectedSchool || "Okul"} Verisini İndir`}
+                  </button>
+                </div>
               </div>
             )}
 

@@ -412,7 +412,7 @@ input {
 .dark-card input::placeholder { color: #aaa !important; }
 
 /* =========================================
-   ADMİN SAYFA SARMALAYICI (DÜZELTİLDİ)
+   ADMİN SAYFA SARMALAYICI
    ========================================= */
 .admin-page-wrapper {
   position: fixed;
@@ -604,7 +604,7 @@ input {
 }
 
 /* =========================================
-   SÜPER ADMİN PANEL (DÜZELTİLDİ)
+   SÜPER ADMİN PANEL
    ========================================= */
 .super-admin-wrapper {
   display: flex;
@@ -632,7 +632,7 @@ input {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 28px;
+  margin-bottom: 16px;
   padding: 0 8px;
 }
 
@@ -643,6 +643,21 @@ input {
   font-weight: 900;
   font-size: 0.95rem;
   color: #14b8a6;
+}
+
+/* Okul adı — sidebar badge */
+.sa-school-badge-sidebar {
+  background: rgba(20, 184, 166, 0.12);
+  border: 1px solid rgba(20, 184, 166, 0.3);
+  border-radius: 10px;
+  color: #14b8a6;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  margin: 0 8px 20px;
+  text-align: center;
+  word-break: break-word;
+  line-height: 1.4;
 }
 
 .sa-nav {
@@ -699,12 +714,49 @@ input {
   max-width: 860px;
 }
 
-/* Öğrenci tablosu tam genişlikte olsun */
 .sa-section-full {
   max-width: 100%;
 }
 
-/* İstatistik dağılım blokları */
+/* =========================================
+   BİLGİ KARTI (Okul Admin için yeni)
+   ========================================= */
+.sa-info-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: rgba(20, 184, 166, 0.06);
+  border: 1px solid rgba(20, 184, 166, 0.2);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-top: 24px;
+}
+
+.sa-info-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.sa-info-title {
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: #14b8a6 !important;
+  -webkit-text-fill-color: #14b8a6 !important;
+  margin: 0 0 4px;
+}
+
+.sa-info-desc {
+  font-size: 0.8rem;
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* =========================================
+   İSTATİSTİK DAĞILIM BLOKLARI
+   ========================================= */
 .sa-dist-block {
   margin-top: 28px;
 }
@@ -788,7 +840,9 @@ input {
   margin-bottom: 28px;
 }
 
-/* Dashboard kartları */
+/* =========================================
+   DASHBOARD KARTLARI
+   ========================================= */
 .sa-dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -825,7 +879,9 @@ input {
   color: #64748b;
 }
 
-/* Filtre satırı */
+/* =========================================
+   FİLTRE SATIRI
+   ========================================= */
 .sa-filter-row {
   display: flex;
   gap: 10px;
@@ -854,7 +910,9 @@ input {
 .sa-select option { background: #1e2228; }
 .sa-select-full { width: 100%; box-sizing: border-box; }
 
-/* Tablo */
+/* =========================================
+   TABLO
+   ========================================= */
 .sa-table-wrap {
   width: 100%;
   overflow-x: auto;
@@ -909,7 +967,9 @@ input {
   margin-top: 16px;
 }
 
-/* İstatistik kartları (DÜZELTİLDİ) */
+/* =========================================
+   İSTATİSTİK KARTLARI
+   ========================================= */
 .sa-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -944,7 +1004,9 @@ input {
   letter-spacing: 0.06em;
 }
 
-/* Sorular (DÜZELTİLDİ) */
+/* =========================================
+   SORULAR
+   ========================================= */
 .sa-q-list {
   display: flex;
   flex-direction: column;
@@ -1058,7 +1120,9 @@ input {
   border-color: rgba(20, 184, 166, 0.5);
 }
 
-/* Excel kartları */
+/* =========================================
+   EXCEL KARTLARI
+   ========================================= */
 .sa-excel-card {
   background: rgba(255, 255, 255, 0.025);
   border: 1px solid rgba(255, 255, 255, 0.07);
@@ -1086,7 +1150,7 @@ input {
 }
 
 /* =========================================
-   MOBİL RESPONSIVE (DÜZELTİLDİ)
+   MOBİL RESPONSIVE
    ========================================= */
 @media (max-width: 768px) {
   .super-admin-wrapper {
@@ -1101,6 +1165,10 @@ input {
     padding: 14px 12px;
     border-right: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .sa-school-badge-sidebar {
+    margin: 0 0 12px;
   }
 
   .sa-nav {
@@ -1136,7 +1204,6 @@ input {
     font-size: 1.1rem;
   }
 
-  /* Sorular mobil görünüm */
   .sa-q-top {
     flex-direction: column;
     align-items: flex-start;
@@ -1148,12 +1215,20 @@ input {
     justify-content: flex-start;
   }
 
-  /* Filtre satırı mobil */
   .sa-filter-row {
     flex-direction: column;
   }
   .sa-search, .sa-select {
     width: 100%;
+  }
+
+  .sa-info-card {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .sa-dist-row {
+    grid-template-columns: 120px 1fr 80px;
   }
 }
 
