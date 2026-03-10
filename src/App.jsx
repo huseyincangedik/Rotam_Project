@@ -221,14 +221,14 @@ function Survey() {
             </div>
           )}
 
-{step === 3 && result && (() => {
+          {step === 3 && result && (() => {
             const alan = result.primaryArea ?? result.result ?? result;
             const alanStr = String(alan || "").toLowerCase();
 
             const simgelerMap = {
               "backend": imgBackend,
               "frontend": imgFrontend,
-              "fronted": imgFrontend, // Eski ihtimale karşı bıraktık
+              "fronted": imgFrontend,
               "mobil": imgMobil,
               "mobile": imgMobil,
               "siber": imgSiber,
@@ -238,11 +238,9 @@ function Survey() {
               "yapay zeka": imgAI,
             };
 
-            // Gelen metnin içinde eşleşen tüm alanların simgelerini bul
             const eslesenSimgeler = [];
             Object.keys(simgelerMap).forEach(key => {
               if (alanStr.includes(key)) {
-                // Aynı resmi (örneğin cyber ve siber geçerse) iki kez eklememek için kontrol
                 if (!eslesenSimgeler.includes(simgelerMap[key])) {
                   eslesenSimgeler.push(simgelerMap[key]);
                 }
@@ -252,12 +250,11 @@ function Survey() {
             return (
               <div>
                 <h1 className="res-title">ANALİZ TAMAMLANDI</h1>
-                {/* Simgeleri yan yana göstermek için flex yapısı eklendi */}
                 <div className="res-icon" style={{ display: "flex", justifyContent: "center", gap: "20px", flexWrap: "wrap", margin: "10px 0" }}>
                   {eslesenSimgeler.length > 0
                     ? eslesenSimgeler.map((simge, index) => (
-                        <img key={index} src={simge} alt="Alan Simgesi" className="res-icon-img" style={{ width: "90px", height: "90px" }} />
-                      ))
+                      <img key={index} src={simge} alt="Alan Simgesi" className="res-icon-img" style={{ width: "90px", height: "90px" }} />
+                    ))
                     : "💡"
                   }
                 </div>
@@ -336,15 +333,15 @@ function Admin() {
 
   /* ---- VERİ YÜKLEME ---- */
   useEffect(() => {
-    if (!token || role !== "SUPER_ADMIN") return;
+    if (!token) return;
     if (activeTab === "students") loadStudents();
     if (activeTab === "statistics") loadStats();
-    if (activeTab === "questions") loadQuestions();
-    if (activeTab === "excel") loadStudentsForSchools();
+    if (activeTab === "questions" && role === "SUPER_ADMIN") loadQuestions();
+    if (activeTab === "excel" && role === "SUPER_ADMIN") loadStudentsForSchools();
     // eslint-disable-next-line
   }, [activeTab, token, role]);
 
-const loadStudents = async () => {
+  const loadStudents = async () => {
     setStudentsLoading(true);
     try {
       const res = await axios.get(`${API}/api/admin/students`, authHeader);
@@ -352,6 +349,7 @@ const loadStudents = async () => {
     } catch { alert("Öğrenciler yüklenemedi!"); }
     finally { setStudentsLoading(false); }
   };
+
   const loadStats = async () => {
     setStatsLoading(true);
     try {
@@ -364,8 +362,6 @@ const loadStudents = async () => {
   const loadQuestions = async () => {
     setQuestionsLoading(true);
     try {
-      // Admin paneli için tüm soruları çek (aktif + pasif)
-      // Önce admin endpoint'ini dene, çalışmazsa public active endpoint'i kullan
       let res;
       try {
         res = await axios.get(`${API}/api/admin/questions`, authHeader);
@@ -382,7 +378,7 @@ const loadStudents = async () => {
       const res = await axios.get(`${API}/api/admin/students`, authHeader);
       const uniqueSchools = [...new Set(res.data.map(s => s.schoolName).filter(Boolean))];
       setSchools(uniqueSchools);
-    } catch {}
+    } catch { }
   };
 
   /* ---- SORULAR CRUD ---- */
@@ -446,36 +442,28 @@ const loadStudents = async () => {
     finally { setDownloading(false); }
   };
 
-  /* ---- SCHOOL_ADMIN basit panel ---- */
-  const SchoolAdminPanel = () => (
-    <>
-      <div className="role-badge school-badge">🏫 Okul Admini</div>
-      <p className="subtitle dark-subtitle">
-        <strong style={{ color: "#14b8a6" }}>{schoolName}</strong> okuluna ait veriler indirilecek
-      </p>
-      <button
-        className="btn primary-btn"
-        onClick={() => handleDownload(schoolName)}
-        disabled={downloading}
-      >
-        {downloading ? "⏳ İndiriliyor..." : "⬇️ OKUL VERİSİNİ İNDİR"}
-      </button>
-    </>
-  );
-
-  /* ---- SUPER ADMIN sekme tanımları ---- */
-  const TABS = [
-    { id: "dashboard",   label: "🏠 Ana Sayfa"    },
-    { id: "students",    label: "👥 Öğrenciler"   },
-    { id: "statistics",  label: "📊 İstatistikler" },
-    { id: "questions",   label: "❓ Sorular"       },
-    { id: "excel",       label: "📥 Excel"         },
+  /* ---- SEKME VE ROL TANIMLARI ---- */
+  const ALL_TABS = [
+    { id: "dashboard", label: "🏠 Ana Sayfa", roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"] },
+    { id: "students", label: "👥 Öğrenciler", roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"] },
+    { id: "statistics", label: "📊 İstatistikler", roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"] },
+    { id: "questions", label: "❓ Sorular", roles: ["SUPER_ADMIN"] },
+    { id: "excel", label: "📥 Excel", roles: ["SUPER_ADMIN", "SCHOOL_ADMIN"] },
   ];
 
+  // Kullanıcının rolüne göre görebileceği sekmeleri filtrele
+  const TABS = ALL_TABS.filter(t => t.roles.includes(role));
+
+  // Okul adminiyse sadece kendi okulunu görmesi için tablo filtresi
   const filteredStudents = students.filter(s => {
     const q = studentSearch.toLowerCase();
     const matchSearch = !q || `${s.firstName} ${s.lastName} ${s.schoolNumber}`.toLowerCase().includes(q);
-    const matchSchool = !schoolFilter || s.schoolName === schoolFilter;
+
+    // Okul admini ise arka planda kendi okulunu otomatik filtrele
+    const matchSchool = role === "SCHOOL_ADMIN"
+      ? s.schoolName === schoolName
+      : (!schoolFilter || s.schoolName === schoolFilter);
+
     return matchSearch && matchSchool;
   });
 
@@ -499,24 +487,15 @@ const loadStudents = async () => {
         </div>
       )}
 
-      {/* SCHOOL ADMIN */}
-      {token && role === "SCHOOL_ADMIN" && (
-        <div className="card dark-card admin-card">
-          <h1 className="title dark-title">🛠️ Yönetici Paneli</h1>
-          <SchoolAdminPanel />
-          <button className="btn admin-btn" onClick={() => navigate("/")}>← Geri Dön</button>
-        </div>
-      )}
-
-      {/* SUPER ADMIN */}
-      {token && role === "SUPER_ADMIN" && (
+      {/* ORTAK ADMİN PANELİ (HEM SUPER HEM OKUL ADMİNİ İÇİN) */}
+      {token && (role === "SUPER_ADMIN" || role === "SCHOOL_ADMIN") && (
         <div className="super-admin-wrapper">
 
           {/* Sidebar */}
           <aside className="sa-sidebar">
             <div className="sa-sidebar-header">
               <span className="sa-logo">⚙️</span>
-              <span className="sa-sidebar-title">Süper Admin</span>
+              <span className="sa-sidebar-title">{role === "SUPER_ADMIN" ? "Süper Admin" : "Okul Admini"}</span>
             </div>
             <nav className="sa-nav">
               {TABS.map(t => (
@@ -539,7 +518,7 @@ const loadStudents = async () => {
             {activeTab === "dashboard" && (
               <div className="sa-section">
                 <h2 className="sa-section-title">Hoş Geldiniz 👋</h2>
-                <p className="sa-section-sub">Rotam Süper Admin Paneli — sol menüden işlem seçin.</p>
+                <p className="sa-section-sub">Rotam {role === "SUPER_ADMIN" ? "Süper Admin" : "Okul Admin"} Paneli — sol menüden işlem seçin.</p>
                 <div className="sa-dashboard-grid">
                   {TABS.slice(1).map(t => (
                     <button key={t.id} className="sa-dash-card" onClick={() => setActiveTab(t.id)}>
@@ -562,14 +541,17 @@ const loadStudents = async () => {
                     value={studentSearch}
                     onChange={e => setStudentSearch(e.target.value)}
                   />
-                  <select
-                    className="sa-select"
-                    value={schoolFilter}
-                    onChange={e => setSchoolFilter(e.target.value)}
-                  >
-                    <option value="">Tüm Okullar</option>
-                    {uniqueStudentSchools.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
+                  {/* Okul filtresi dropdown'unu sadece Super Admin görebilir */}
+                  {role === "SUPER_ADMIN" && (
+                    <select
+                      className="sa-select"
+                      value={schoolFilter}
+                      onChange={e => setSchoolFilter(e.target.value)}
+                    >
+                      <option value="">Tüm Okullar</option>
+                      {uniqueStudentSchools.map(s => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  )}
                 </div>
                 {studentsLoading ? (
                   <p className="sa-loading">Yükleniyor...</p>
@@ -578,7 +560,7 @@ const loadStudents = async () => {
                     <table className="sa-table">
                       <thead>
                         <tr>
-                          <th style={{width:"40px"}}>#</th>
+                          <th style={{ width: "40px" }}>#</th>
                           <th>Ad Soyad</th>
                           <th>Okul</th>
                           <th>Numara</th>
@@ -593,12 +575,11 @@ const loadStudents = async () => {
                             </td>
                           </tr>
                         ) : filteredStudents.map((s, i) => {
-                          // Backend farklı field adları döndürebilir — hepsini dene
                           const resultVal = s.resultRole ?? s.result ?? s.primaryArea ?? "—";
                           return (
                             <tr key={s.id ?? i}>
                               <td>{i + 1}</td>
-                              <td style={{whiteSpace:"nowrap"}}>{s.firstName} {s.lastName}</td>
+                              <td style={{ whiteSpace: "nowrap" }}>{s.firstName} {s.lastName}</td>
                               <td>{s.schoolName}</td>
                               <td>{s.schoolNumber ?? s.studentNumber}</td>
                               <td>
@@ -623,7 +604,6 @@ const loadStudents = async () => {
                   <p className="sa-loading">Yükleniyor...</p>
                 ) : stats ? (
                   <>
-                    {/* Sayısal değerler — küçük kart grid */}
                     <div className="sa-stats-grid">
                       {Object.entries(stats)
                         .filter(([, val]) => typeof val !== "object")
@@ -635,7 +615,6 @@ const loadStudents = async () => {
                         ))}
                     </div>
 
-                    {/* Obje değerler — dağılım tabloları */}
                     {Object.entries(stats)
                       .filter(([, val]) => typeof val === "object" && val !== null)
                       .map(([key, val]) => {
@@ -668,8 +647,8 @@ const loadStudents = async () => {
               </div>
             )}
 
-            {/* SORULAR */}
-            {activeTab === "questions" && (
+            {/* SORULAR (SADECE SÜPER ADMİN GÖRÜR) */}
+            {activeTab === "questions" && role === "SUPER_ADMIN" && (
               <div className="sa-section">
                 <div className="sa-section-header">
                   <h2 className="sa-section-title">Sorular</h2>
@@ -744,38 +723,57 @@ const loadStudents = async () => {
               <div className="sa-section">
                 <h2 className="sa-section-title">Excel Raporu İndir</h2>
 
-                <div className="sa-excel-card">
-                  <h3 className="sa-excel-card-title">🌐 Tüm Okullar</h3>
-                  <p className="sa-excel-desc">Sistemdeki tüm okullara ait verileri tek dosyada indir.</p>
-                  <button
-                    className="btn primary-btn"
-                    onClick={() => handleDownload("")}
-                    disabled={downloading}
-                  >
-                    {downloading ? "⏳ İndiriliyor..." : "⬇️ TÜM VERİYİ İNDİR"}
-                  </button>
-                </div>
+                {role === "SUPER_ADMIN" && (
+                  <>
+                    <div className="sa-excel-card">
+                      <h3 className="sa-excel-card-title">🌐 Tüm Okullar</h3>
+                      <p className="sa-excel-desc">Sistemdeki tüm okullara ait verileri tek dosyada indir.</p>
+                      <button
+                        className="btn primary-btn"
+                        onClick={() => handleDownload("")}
+                        disabled={downloading}
+                      >
+                        {downloading ? "⏳ İndiriliyor..." : "⬇️ TÜM VERİYİ İNDİR"}
+                      </button>
+                    </div>
 
-                <div className="sa-excel-card">
-                  <h3 className="sa-excel-card-title">🏫 Okul Bazlı</h3>
-                  <p className="sa-excel-desc">Belirli bir okula ait verileri indir.</p>
-                  <select
-                    className="sa-select sa-select-full"
-                    value={selectedSchool}
-                    onChange={e => setSelectedSchool(e.target.value)}
-                  >
-                    <option value="">— Okul Seçin —</option>
-                    {schools.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                  <button
-                    className="btn primary-btn"
-                    onClick={() => handleDownload(selectedSchool)}
-                    disabled={!selectedSchool || downloading}
-                    style={{ marginTop: "10px" }}
-                  >
-                    {downloading ? "⏳ İndiriliyor..." : `⬇️ ${selectedSchool || "Okul"} Verisini İndir`}
-                  </button>
-                </div>
+                    <div className="sa-excel-card">
+                      <h3 className="sa-excel-card-title">🏫 Okul Bazlı</h3>
+                      <p className="sa-excel-desc">Belirli bir okula ait verileri indir.</p>
+                      <select
+                        className="sa-select sa-select-full"
+                        value={selectedSchool}
+                        onChange={e => setSelectedSchool(e.target.value)}
+                      >
+                        <option value="">— Okul Seçin —</option>
+                        {schools.map(s => <option key={s} value={s}>{s}</option>)}
+                      </select>
+                      <button
+                        className="btn primary-btn"
+                        onClick={() => handleDownload(selectedSchool)}
+                        disabled={!selectedSchool || downloading}
+                        style={{ marginTop: "10px" }}
+                      >
+                        {downloading ? "⏳ İndiriliyor..." : `⬇️ ${selectedSchool || "Okul"} Verisini İndir`}
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                {/* SADECE OKUL ADMİNİ İÇİN EXCEL KARTI */}
+                {role === "SCHOOL_ADMIN" && (
+                  <div className="sa-excel-card">
+                    <h3 className="sa-excel-card-title">🏫 Okul Verisi</h3>
+                    <p className="sa-excel-desc"><strong style={{ color: "#14b8a6" }}>{schoolName}</strong> okuluna ait tüm öğrencilerin verilerini indir.</p>
+                    <button
+                      className="btn primary-btn"
+                      onClick={() => handleDownload(schoolName)}
+                      disabled={downloading}
+                    >
+                      {downloading ? "⏳ İndiriliyor..." : "⬇️ OKUL VERİSİNİ İNDİR"}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
