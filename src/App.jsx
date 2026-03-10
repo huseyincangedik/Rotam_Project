@@ -251,7 +251,7 @@ function Survey() {
                     ? eslesenSimgeler.map((simge, index) => (
                         <img key={index} src={simge} alt="Alan Simgesi" className="res-icon-img" style={{ width: "90px", height: "90px" }} />
                       ))
-                    : "💡"
+                    : "💻"
                   }
                 </div>
                 <div className="res-highlight">{alan}</div>
